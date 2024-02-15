@@ -24,7 +24,7 @@ main() async {
 
   //await fileRepository.
   test('Insert File', () async {
-    final file = FileEntity(name: 'test', path: 'test', lastOpened: DateTime.now().millisecondsSinceEpoch, bytes: Uint8List(0), size: 0);
+    final file = FileEntity(name: 'test', path: 'test', idFolder: "Folder 1", lastOpened: DateTime.now().millisecondsSinceEpoch, bytes: Uint8List(0), size: 0);
     await fileRepository.insertFile(file);
     final file2 = FileEntity(name: 'test2', path: 'test2', lastOpened: DateTime.now().millisecondsSinceEpoch, bytes: Uint8List(0), size: 0);
     await fileRepository.insertFile(file2);

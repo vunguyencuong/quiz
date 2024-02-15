@@ -7,6 +7,18 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Material(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Home Screen'),
+        ),
+        body: const Center(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            AutoRouter.of(context).pushNamed('/folder');
+          },
+        )
+      ),
+    );
   }
 }

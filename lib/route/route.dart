@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:smart_printer/screen/home/home_screen.dart';
 
+import '../screen/folder/folder_screen.dart';
+
 part 'route.gr.dart';
 
 @AutoRouterConfig()
@@ -13,6 +15,10 @@ class AppRouter extends _$AppRouter {
       page: HomeRoute.page,
       initial: true,
       path: '/',
+    ),
+    MaterialRoute(
+      page: FolderRoute.page,
+      path: '/folder',
     ),
   ];
 }

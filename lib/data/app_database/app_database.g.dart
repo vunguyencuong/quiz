@@ -87,7 +87,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `FileEntity` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `path` TEXT, `idFolder` INTEGER, `lastOpened` INTEGER NOT NULL, `bytes` BLOB NOT NULL, `size` INTEGER, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `FileEntity` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `path` TEXT, `idFolder` TEXT, `lastOpened` INTEGER NOT NULL, `bytes` BLOB NOT NULL, `size` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `FolderEntity` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `path` TEXT, `lastOpened` INTEGER NOT NULL, `bytes` BLOB NOT NULL, `size` INTEGER, PRIMARY KEY (`id`))');
 
@@ -173,7 +173,7 @@ class _$FileRepository extends FileRepository {
         mapper: (Map<String, Object?> row) => FileEntity(
             name: row['name'] as String,
             path: row['path'] as String?,
-            idFolder: row['idFolder'] as int?,
+            idFolder: row['idFolder'] as String?,
             lastOpened: row['lastOpened'] as int,
             bytes: row['bytes'] as Uint8List,
             size: row['size'] as int?));

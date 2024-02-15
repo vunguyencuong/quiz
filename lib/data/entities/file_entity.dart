@@ -16,7 +16,7 @@ class FileEntity {
   String id = const Uuid().v1();
   String name;
   String? path;
-  int? idFolder;
+  String? idFolder;
   int lastOpened;
   Uint8List bytes;
   int? size;
