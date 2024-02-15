@@ -10,4 +10,13 @@ abstract class FileRepository {
 
   @insert
   Future<void> insertFile(FileEntity file);
+
+  @update
+  Future<void>updateFile(FileEntity file);
+
+  @delete
+  Future<void>deleteFile(FileEntity file);
+
+
+
 }
