@@ -38,6 +38,7 @@ dependencies:
   floor: ^1.4.2
   flutter_bloc: ^8.1.4
   auto_route: ^7.8.4
+  uuid: ^4.3.3
 
 
 dev_dependencies:

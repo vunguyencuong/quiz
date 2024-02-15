@@ -32,7 +32,7 @@ main() async {
     for (var file in files) {
       print('${file.id} ${file.name} ${file.path} ${file.idFolder} ${file.lastOpened} ${file.bytes} ${file.size}');
     }
-    expect(files.length, 1);
+    expect(files.length, 2);
   });
 
   test('Insert Folder', () async {
@@ -46,7 +46,6 @@ main() async {
     for (var folder in folders) {
       print('${folder.id} ${folder.name} ${folder.lastOpened} ${folder.bytes} ${folder.size}');
     }
-    expect(folders.length, 1);
-
+    expect(folders.length, 2);
   });
 }

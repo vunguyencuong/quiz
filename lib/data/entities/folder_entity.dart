@@ -1,10 +1,10 @@
 import 'package:floor/floor.dart';
 import 'package:flutter/services.dart';
+import 'package:uuid/uuid.dart';
 
 @entity
 class FolderEntity{
   FolderEntity({
-    this.id,
     required this.name,
     this.path,
     required this.lastOpened,
@@ -12,8 +12,8 @@ class FolderEntity{
     this.size,
   });
 
-  @PrimaryKey(autoGenerate: true)
-  int? id;
+  @primaryKey
+  String id = const Uuid().v1();
   String name;
   String? path;
   int lastOpened;

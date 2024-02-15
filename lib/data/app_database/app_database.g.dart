@@ -87,9 +87,9 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `FileEntity` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `path` TEXT, `idFolder` INTEGER, `lastOpened` INTEGER NOT NULL, `bytes` BLOB NOT NULL, `size` INTEGER)');
+            'CREATE TABLE IF NOT EXISTS `FileEntity` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `path` TEXT, `idFolder` INTEGER, `lastOpened` INTEGER NOT NULL, `bytes` BLOB NOT NULL, `size` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `FolderEntity` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `path` TEXT, `lastOpened` INTEGER NOT NULL, `bytes` BLOB NOT NULL, `size` INTEGER)');
+            'CREATE TABLE IF NOT EXISTS `FolderEntity` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `path` TEXT, `lastOpened` INTEGER NOT NULL, `bytes` BLOB NOT NULL, `size` INTEGER, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -171,7 +171,6 @@ class _$FileRepository extends FileRepository {
     return _queryAdapter.queryList(
         'SELECT * FROM FileEntity ORDER BY lastOpened DESC',
         mapper: (Map<String, Object?> row) => FileEntity(
-            id: row['id'] as int?,
             name: row['name'] as String,
             path: row['path'] as String?,
             idFolder: row['idFolder'] as int?,
@@ -254,7 +253,6 @@ class _$FolderRepository extends FolderRepository {
     return _queryAdapter.queryList(
         'SELECT * FROM FolderEntity ORDER BY lastOpened DESC',
         mapper: (Map<String, Object?> row) => FolderEntity(
-            id: row['id'] as int?,
             name: row['name'] as String,
             path: row['path'] as String?,
             lastOpened: row['lastOpened'] as int,

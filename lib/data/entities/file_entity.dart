@@ -1,10 +1,9 @@
 import 'package:floor/floor.dart';
 import 'package:flutter/services.dart';
-
+import 'package:uuid/uuid.dart';
 @entity
 class FileEntity {
   FileEntity({
-    this.id,
     required this.name,
     this.path,
     this.idFolder,
@@ -13,8 +12,8 @@ class FileEntity {
     this.size,
   });
 
-  @PrimaryKey(autoGenerate: true)
-  int? id;
+  @primaryKey
+  String id = const Uuid().v1();
   String name;
   String? path;
   int? idFolder;
