@@ -1,15 +1,11 @@
-import 'package:flutter/services.dart';
 import 'package:smart_printer/data/app_database/app_database.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_printer/data/entities/file_entity.dart';
-import 'package:smart_printer/data/entities/folder_entity.dart';
 import 'package:smart_printer/data/repositories/file_repository.dart';
-import 'package:smart_printer/data/repositories/folder_repository.dart';
 
 main() async {
   final AppDatabase appDatabase = await $FloorAppDatabase.inMemoryDatabaseBuilder().build();
   final FileRepository fileRepository = appDatabase.fileRepository;
-  final FolderRepository folderRepository = appDatabase.folderRepository;
   test('AppDatabase', () {
     expect(appDatabase, isA<AppDatabase>());
   });
@@ -18,34 +14,55 @@ main() async {
     expect(fileRepository, isA<FileRepository>());
   });
 
-  test('FolderRepository', () {
-    expect(folderRepository, isA<FolderRepository>());
-  });
-
   //await fileRepository.
-  test('Insert File', () async {
-    final file = FileEntity(name: 'test', path: 'test', idFolder: "Folder 1", lastOpened: DateTime.now().millisecondsSinceEpoch, bytes: Uint8List(0), size: 0);
-    await fileRepository.insertFile(file);
-    final file2 = FileEntity(name: 'test2', path: 'test2', lastOpened: DateTime.now().millisecondsSinceEpoch, bytes: Uint8List(0), size: 0);
-    await fileRepository.insertFile(file2);
+  test('Insert root', () async {
+    final root = FileEntity.root();
+    await fileRepository.insertFile(root);
     final files = await fileRepository.getRecentFiles();
     for (var file in files) {
-      print('${file.id} ${file.name} ${file.path} ${file.idFolder} ${file.lastOpened} ${file.bytes} ${file.size}');
+      print('${file.id} ${file.name} ${file.path} ${file.parentId} ${file.lastOpened} ${file.bytes} ${file.size}');
+    }
+    expect(files.length, 1);
+  });
+
+  test('New folder in root', () async {
+    final folder = FileEntity(name: 'folder', type: FileType.folder, lastOpened: DateTime.now().millisecondsSinceEpoch, parentId: 'root');
+    await fileRepository.insertFile(folder);
+    final files = await fileRepository.getRecentFiles();
+    for (var file in files) {
+      print('${file.id} ${file.name} ${file.path} ${file.parentId} ${file.lastOpened} ${file.bytes} ${file.size}');
     }
     expect(files.length, 2);
   });
 
-  test('Insert Folder', () async {
-    final folder = FolderEntity(name: "test", lastOpened: 0, bytes: Uint8List(0));
-    await folderRepository.insertFolder(folder);
-
-    final folder2 = FolderEntity(name: "test2", lastOpened: 0, bytes: Uint8List(0));
-    await folderRepository.insertFolder(folder2);
-
-    final folders = await folderRepository.getRecentFolders();
-    for (var folder in folders) {
-      print('${folder.id} ${folder.name} ${folder.lastOpened} ${folder.bytes} ${folder.size}');
+  test('Get children of root', () async {
+    final children = await fileRepository.getFilesByParentId('root');
+    for (var file in children) {
+      print('${file.id} ${file.name} ${file.path} ${file.parentId} ${file.lastOpened} ${file.bytes} ${file.size}');
     }
-    expect(folders.length, 2);
+    expect(children.length, 1);
+  });
+
+  test('New file in first folder of root', () async {
+    final folder = (await fileRepository.getFilesByParentId('root')).first;
+    final file = FileEntity(name: 'file', type: FileType.file, lastOpened: DateTime.now().millisecondsSinceEpoch, parentId: folder.id);
+    await fileRepository.insertFile(file);
+    final files = await fileRepository.getFilesByParentId(folder.id);
+    for (var file in files) {
+      print('${file.id} ${file.name} ${file.path} ${file.parentId} ${file.lastOpened} ${file.bytes} ${file.size}');
+    }
+    expect(files.length, 1);
+  });
+
+  test('Move file to root', () async {
+    final folder = (await fileRepository.getFilesByParentId('root')).first;
+    final file = (await fileRepository.getFilesByParentId(folder.id)).first;
+    file.parentId = 'root';
+    await fileRepository.updateFile(file);
+    final files = await fileRepository.getFilesByParentId(folder.id);
+    for (var file in files) {
+      print('${file.id} ${file.name} ${file.path} ${file.parentId} ${file.lastOpened} ${file.bytes} ${file.size}');
+    }
+    expect(files.length, 0);
   });
 }

@@ -63,8 +63,6 @@ class _$AppDatabase extends AppDatabase {
 
   FileRepository? _fileRepositoryInstance;
 
-  FolderRepository? _folderRepositoryInstance;
-
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -87,9 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `FileEntity` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `path` TEXT, `idFolder` TEXT, `lastOpened` INTEGER NOT NULL, `bytes` BLOB NOT NULL, `size` INTEGER, PRIMARY KEY (`id`))');
-        await database.execute(
-            'CREATE TABLE IF NOT EXISTS `FolderEntity` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `path` TEXT, `lastOpened` INTEGER NOT NULL, `bytes` BLOB NOT NULL, `size` INTEGER, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `FileEntity` (`id` TEXT NOT NULL, `type` INTEGER NOT NULL, `name` TEXT NOT NULL, `path` TEXT, `parentId` TEXT, `lastOpened` INTEGER NOT NULL, `bytes` BLOB, `size` INTEGER, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -101,12 +97,6 @@ class _$AppDatabase extends AppDatabase {
   FileRepository get fileRepository {
     return _fileRepositoryInstance ??=
         _$FileRepository(database, changeListener);
-  }
-
-  @override
-  FolderRepository get folderRepository {
-    return _folderRepositoryInstance ??=
-        _$FolderRepository(database, changeListener);
   }
 }
 
@@ -120,9 +110,10 @@ class _$FileRepository extends FileRepository {
             'FileEntity',
             (FileEntity item) => <String, Object?>{
                   'id': item.id,
+                  'type': item.type.index,
                   'name': item.name,
                   'path': item.path,
-                  'idFolder': item.idFolder,
+                  'parentId': item.parentId,
                   'lastOpened': item.lastOpened,
                   'bytes': item.bytes,
                   'size': item.size
@@ -133,9 +124,10 @@ class _$FileRepository extends FileRepository {
             ['id'],
             (FileEntity item) => <String, Object?>{
                   'id': item.id,
+                  'type': item.type.index,
                   'name': item.name,
                   'path': item.path,
-                  'idFolder': item.idFolder,
+                  'parentId': item.parentId,
                   'lastOpened': item.lastOpened,
                   'bytes': item.bytes,
                   'size': item.size
@@ -146,9 +138,10 @@ class _$FileRepository extends FileRepository {
             ['id'],
             (FileEntity item) => <String, Object?>{
                   'id': item.id,
+                  'type': item.type.index,
                   'name': item.name,
                   'path': item.path,
-                  'idFolder': item.idFolder,
+                  'parentId': item.parentId,
                   'lastOpened': item.lastOpened,
                   'bytes': item.bytes,
                   'size': item.size
@@ -171,12 +164,30 @@ class _$FileRepository extends FileRepository {
     return _queryAdapter.queryList(
         'SELECT * FROM FileEntity ORDER BY lastOpened DESC',
         mapper: (Map<String, Object?> row) => FileEntity(
+            id: row['id'] as String?,
             name: row['name'] as String,
+            type: FileType.values[row['type'] as int],
             path: row['path'] as String?,
-            idFolder: row['idFolder'] as String?,
+            parentId: row['parentId'] as String?,
             lastOpened: row['lastOpened'] as int,
-            bytes: row['bytes'] as Uint8List,
+            bytes: row['bytes'] as Uint8List?,
             size: row['size'] as int?));
+  }
+
+  @override
+  Future<List<FileEntity>> getFilesByParentId(String parentId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM FileEntity WHERE parentId = ?1 ORDER BY lastOpened DESC',
+        mapper: (Map<String, Object?> row) => FileEntity(
+            id: row['id'] as String?,
+            name: row['name'] as String,
+            type: FileType.values[row['type'] as int],
+            path: row['path'] as String?,
+            parentId: row['parentId'] as String?,
+            lastOpened: row['lastOpened'] as int,
+            bytes: row['bytes'] as Uint8List?,
+            size: row['size'] as int?),
+        arguments: [parentId]);
   }
 
   @override
@@ -192,87 +203,5 @@ class _$FileRepository extends FileRepository {
   @override
   Future<void> deleteFile(FileEntity file) async {
     await _fileEntityDeletionAdapter.delete(file);
-  }
-}
-
-class _$FolderRepository extends FolderRepository {
-  _$FolderRepository(
-    this.database,
-    this.changeListener,
-  )   : _queryAdapter = QueryAdapter(database),
-        _folderEntityInsertionAdapter = InsertionAdapter(
-            database,
-            'FolderEntity',
-            (FolderEntity item) => <String, Object?>{
-                  'id': item.id,
-                  'name': item.name,
-                  'path': item.path,
-                  'lastOpened': item.lastOpened,
-                  'bytes': item.bytes,
-                  'size': item.size
-                }),
-        _folderEntityUpdateAdapter = UpdateAdapter(
-            database,
-            'FolderEntity',
-            ['id'],
-            (FolderEntity item) => <String, Object?>{
-                  'id': item.id,
-                  'name': item.name,
-                  'path': item.path,
-                  'lastOpened': item.lastOpened,
-                  'bytes': item.bytes,
-                  'size': item.size
-                }),
-        _folderEntityDeletionAdapter = DeletionAdapter(
-            database,
-            'FolderEntity',
-            ['id'],
-            (FolderEntity item) => <String, Object?>{
-                  'id': item.id,
-                  'name': item.name,
-                  'path': item.path,
-                  'lastOpened': item.lastOpened,
-                  'bytes': item.bytes,
-                  'size': item.size
-                });
-
-  final sqflite.DatabaseExecutor database;
-
-  final StreamController<String> changeListener;
-
-  final QueryAdapter _queryAdapter;
-
-  final InsertionAdapter<FolderEntity> _folderEntityInsertionAdapter;
-
-  final UpdateAdapter<FolderEntity> _folderEntityUpdateAdapter;
-
-  final DeletionAdapter<FolderEntity> _folderEntityDeletionAdapter;
-
-  @override
-  Future<List<FolderEntity>> getRecentFolders() async {
-    return _queryAdapter.queryList(
-        'SELECT * FROM FolderEntity ORDER BY lastOpened DESC',
-        mapper: (Map<String, Object?> row) => FolderEntity(
-            name: row['name'] as String,
-            path: row['path'] as String?,
-            lastOpened: row['lastOpened'] as int,
-            bytes: row['bytes'] as Uint8List,
-            size: row['size'] as int?));
-  }
-
-  @override
-  Future<void> insertFolder(FolderEntity folder) async {
-    await _folderEntityInsertionAdapter.insert(
-        folder, OnConflictStrategy.abort);
-  }
-
-  @override
-  Future<void> updateFolder(FolderEntity folder) async {
-    await _folderEntityUpdateAdapter.update(folder, OnConflictStrategy.abort);
-  }
-
-  @override
-  Future<void> deleteFolder(FolderEntity folder) async {
-    await _folderEntityDeletionAdapter.delete(folder);
   }
 }
