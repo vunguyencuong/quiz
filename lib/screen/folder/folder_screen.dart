@@ -37,12 +37,18 @@ class FolderScreenUI extends StatelessWidget {
 
   String idFolder;
   String name;
-
+  bool isChange = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text(name),
+          leading: InkWell(
+            child: const Center(child: FaIcon(FontAwesomeIcons.arrowLeft)),
+            onTap: () {
+              AutoRouter.of(context).pop(isChange);
+            },
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
@@ -75,98 +81,113 @@ class FolderScreenUI extends StatelessWidget {
                   child: Text('Empty'),
                 );
               }
-              return ListView.builder(
-                itemCount: state.listFile.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final file = state.listFile[index];
-                  return ListTile(
-                    title: Text(file.name),
-                    leading: file.type == FileType.folder
-                        ? const FaIcon(FontAwesomeIcons.folder)
-                        : const FaIcon(FontAwesomeIcons.file),
-                    trailing: InkWell(
-                      child: const FaIcon(FontAwesomeIcons.ellipsis),
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                ListTile(
-                                  leading: const FaIcon(FontAwesomeIcons
-                                      .upRightAndDownLeftFromCenter),
-                                  title: const Text('Move'),
-                                  onTap: () async {
-                                    var parentId = await AutoRouter.of(context).push(
-                                      LocationFileRoute(id: 'root'),
-                                    );
-                                    if (parentId != null) {
-                                      file.parentId = parentId as String?;
-                                      Navigator.of(context).pop(['move', file]);
-                                    }
-                                  },
-                                ),
-                                ListTile(
-                                  leading: const FaIcon(FontAwesomeIcons.edit),
-                                  title: const Text('Edit'),
-                                  onTap: () async {
-                                    var newFile = await _showDialog(context, file);
-                                    if (newFile != null) {
-                                      Navigator.of(context).pop(['edit', file]);
-                                    }
-                                  },
-                                ),
-                                ListTile(
-                                  leading: const FaIcon(FontAwesomeIcons.trash),
-                                  title: const Text('Delete'),
-                                  onTap: () async {
-                                    var choice = await _showChoiceDialog(context, file);
-                                    if(choice != null){
-                                      Navigator.of(context).pop(['delete', file]);
-                                    }
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        ).then((value) => {
-                              if (value != null){
-                                if (value[0] == 'edit'){
-                                      context.read<FolderBloc>().add(
-                                            FolderEventSave(
-                                              fileEntity: value[1],
-                                            ),
-                                      ),
-                                } else if (value[0] == 'delete'){
-                                      context.read<FolderBloc>().add(
-                                            FolderEventDelete(
-                                              fileEntity: value[1],
-                                            ),
-                                      ),
-                                  }
-                                  else if (value[0] == 'move'){
-                                    context.read<FolderBloc>().add(
-                                      FolderEventMove(
-                                        fileEntity: value[1],
-                                        idFolder: idFolder,
-                                      ),
-                                    ),
-                                  }
-                                }
-                            });
-                      },
-                    ),
-                    onTap: () {
-                      if (file.type == FileType.folder) {
-                        AutoRouter.of(context)
-                            .push(FolderRoute(name: file.name, idFolder: file.id));
-                      } else {
-                        // AutoRouter.of(context).push('/file/${file.id}');
-                      }
-                    },
+              return RefreshIndicator(
+                onRefresh: () {
+                  context.read<FolderBloc>().add(
+                    FolderEventLoad(idFolder: idFolder),
                   );
+                  return Future.delayed(const Duration(seconds: 1));
                 },
+                child: ListView.builder(
+                  itemCount: state.listFile.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final file = state.listFile[index];
+                    return ListTile(
+                      title: Text(file.name),
+                      leading: file.type == FileType.folder
+                          ? const FaIcon(FontAwesomeIcons.folder)
+                          : const FaIcon(FontAwesomeIcons.file),
+                      trailing: InkWell(
+                        child: const FaIcon(FontAwesomeIcons.ellipsis),
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  ListTile(
+                                    leading: const FaIcon(FontAwesomeIcons
+                                        .upRightAndDownLeftFromCenter),
+                                    title: const Text('Move'),
+                                    onTap: () async {
+                                      var parentId = await AutoRouter.of(context).push(
+                                        LocationFileRoute(id: 'root', idFolderNeedToMove: file.id, name: "Root"),
+                                      );
+                                      if (parentId != null) {
+                                        file.parentId = parentId as String?;
+                                        Navigator.of(context).pop(['move', file]);
+                                      }
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const FaIcon(FontAwesomeIcons.edit),
+                                    title: const Text('Edit'),
+                                    onTap: () async {
+                                      var newFile = await _showDialog(context, file);
+                                      if (newFile != null) {
+                                        Navigator.of(context).pop(['edit', file]);
+                                      }
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const FaIcon(FontAwesomeIcons.trash),
+                                    title: const Text('Delete'),
+                                    onTap: () async {
+                                      var choice = await _showChoiceDialog(context, file);
+                                      if(choice != null){
+                                        Navigator.of(context).pop(['delete', file]);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          ).then((value) => {
+                                if (value != null){
+                                  if (value[0] == 'edit'){
+                                        context.read<FolderBloc>().add(
+                                              FolderEventSave(
+                                                fileEntity: value[1],
+                                              ),
+                                        ),
+                                  } else if (value[0] == 'delete'){
+                                        context.read<FolderBloc>().add(
+                                              FolderEventDelete(
+                                                fileEntity: value[1],
+                                              ),
+                                        ),
+                                    }
+                                    else if (value[0] == 'move'){
+                                      context.read<FolderBloc>().add(
+                                        FolderEventMove(
+                                          fileEntity: value[1],
+                                          idFolder: idFolder,
+                                        ),
+                                      ),
+                                      isChange = true,
+                                    }
+                                  }
+                              });
+                        },
+                      ),
+                      onTap: () async {
+                        if (file.type == FileType.folder) {
+                          var result = await AutoRouter.of(context)
+                              .push(FolderRoute(name: file.name, idFolder: file.id));
+                          if(result == true){
+                            isChange = true;
+                            context.read<FolderBloc>().add(
+                              FolderEventLoad(idFolder: idFolder),
+                            );
+                          }
+                        } else {
+                          // AutoRouter.of(context).push('/file/${file.id}');
+                        }
+                      },
+                    );
+                  },
+                ),
               );
             }
             return const Center(

@@ -40,11 +40,17 @@ abstract class _$AppRouter extends RootStackRouter {
     LocationFileRoute.name: (routeData) {
       final pathParams = routeData.inheritedPathParams;
       final args = routeData.argsAs<LocationFileRouteArgs>(
-          orElse: () => LocationFileRouteArgs(id: pathParams.getString('id')));
+          orElse: () => LocationFileRouteArgs(
+                id: pathParams.getString('id'),
+                idFolderNeedToMove: pathParams.getString('idFolderNeedToMove'),
+                name: pathParams.getString('name'),
+              ));
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: LocationFileScreen(
           id: args.id,
+          idFolderNeedToMove: args.idFolderNeedToMove,
+          name: args.name,
           key: args.key,
         ),
       );
@@ -117,15 +123,23 @@ class HomeRoute extends PageRouteInfo<void> {
 class LocationFileRoute extends PageRouteInfo<LocationFileRouteArgs> {
   LocationFileRoute({
     required String id,
+    required String idFolderNeedToMove,
+    required String name,
     Key? key,
     List<PageRouteInfo>? children,
   }) : super(
           LocationFileRoute.name,
           args: LocationFileRouteArgs(
             id: id,
+            idFolderNeedToMove: idFolderNeedToMove,
+            name: name,
             key: key,
           ),
-          rawPathParams: {'id': id},
+          rawPathParams: {
+            'id': id,
+            'idFolderNeedToMove': idFolderNeedToMove,
+            'name': name,
+          },
           initialChildren: children,
         );
 
@@ -138,15 +152,21 @@ class LocationFileRoute extends PageRouteInfo<LocationFileRouteArgs> {
 class LocationFileRouteArgs {
   const LocationFileRouteArgs({
     required this.id,
+    required this.idFolderNeedToMove,
+    required this.name,
     this.key,
   });
 
   final String id;
 
+  final String idFolderNeedToMove;
+
+  final String name;
+
   final Key? key;
 
   @override
   String toString() {
-    return 'LocationFileRouteArgs{id: $id, key: $key}';
+    return 'LocationFileRouteArgs{id: $id, idFolderNeedToMove: $idFolderNeedToMove, name: $name, key: $key}';
   }
 }

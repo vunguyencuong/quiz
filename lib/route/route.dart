@@ -25,7 +25,7 @@ class AppRouter extends _$AppRouter {
     ),
     MaterialRoute(
         page: LocationFileRoute.page,
-        path: '/location_file/:id',
+        path: '/location_file/:id/:idFolderNeedToMove/:name',
     )
   ];
 }

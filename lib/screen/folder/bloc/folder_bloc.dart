@@ -38,8 +38,19 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
   }
 
   Future<FutureOr<void>> _onDelete(FolderEventDelete event, Emitter<FolderState> emit) async {
-    await fileRepository.deleteFile(event.fileEntity);
-    add(FolderEventLoad(idFolder: event.fileEntity.parentId!) );
+    // remove folder and all child folder
+    final listFile = await fileRepository.getFilesByParentId(event.fileEntity.id);
+    if(listFile.isEmpty){
+      await fileRepository.deleteFile(event.fileEntity);
+      add(FolderEventLoad(idFolder: event.fileEntity.parentId!) );
+    }
+    else{
+      for (var file in listFile) {
+        add(FolderEventDelete(fileEntity: file));
+      }
+      await fileRepository.deleteFile(event.fileEntity);
+      add(FolderEventLoad(idFolder: event.fileEntity.parentId!) );
+    }
   }
 
 
