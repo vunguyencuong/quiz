@@ -20,7 +20,6 @@ class FolderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('FolderScreen: $idFolder, $name');
     return BlocProvider(
       create: (BuildContext context) =>
           FolderBloc(database: AppDatabase.getInstance())
@@ -98,7 +97,15 @@ class FolderScreenUI extends StatelessWidget {
                                   leading: const FaIcon(FontAwesomeIcons
                                       .upRightAndDownLeftFromCenter),
                                   title: const Text('Move'),
-                                  onTap: () {},
+                                  onTap: () async {
+                                    var parentId = await AutoRouter.of(context).push(
+                                      LocationFileRoute(id: 'root'),
+                                    );
+                                    if (parentId != null) {
+                                      file.parentId = parentId as String?;
+                                      Navigator.of(context).pop(['move', file]);
+                                    }
+                                  },
                                 ),
                                 ListTile(
                                   leading: const FaIcon(FontAwesomeIcons.edit),
@@ -137,6 +144,14 @@ class FolderScreenUI extends StatelessWidget {
                                               fileEntity: value[1],
                                             ),
                                       ),
+                                  }
+                                  else if (value[0] == 'move'){
+                                    context.read<FolderBloc>().add(
+                                      FolderEventMove(
+                                        fileEntity: value[1],
+                                        idFolder: idFolder,
+                                      ),
+                                    ),
                                   }
                                 }
                             });

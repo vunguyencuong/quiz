@@ -16,6 +16,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
     on<FolderEventSave>(_onSave);
     on<FolderEventDelete>(_onDelete);
     on<FolderEventInsert>(_onInsert);
+    on<FolderEventMove>(_onMove);
   }
 
   final AppDatabase database;
@@ -33,20 +34,22 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
 
   Future<FutureOr<void>> _onSave(FolderEventSave event, Emitter<FolderState> emit) async {
     await fileRepository.updateFile(event.fileEntity);
-    final files = await fileRepository.getFilesByParentId(event.fileEntity.parentId!);
-    emit(FolderLoadSuccess(listFile: files, parentId: event.fileEntity.parentId!));
+    add(FolderEventLoad(idFolder: event.fileEntity.parentId!) );
   }
 
   Future<FutureOr<void>> _onDelete(FolderEventDelete event, Emitter<FolderState> emit) async {
-    fileRepository.deleteFile(event.fileEntity);
-    final files = await fileRepository.getFilesByParentId(event.fileEntity.parentId!);
-    emit(FolderLoadSuccess(listFile: files, parentId: event.fileEntity.parentId!));
+    await fileRepository.deleteFile(event.fileEntity);
+    add(FolderEventLoad(idFolder: event.fileEntity.parentId!) );
   }
 
 
   Future<FutureOr<void>> _onInsert(FolderEventInsert event, Emitter<FolderState> emit) async {
     await fileRepository.insertFile(event.fileEntity);
-    final files = await fileRepository.getFilesByParentId(event.fileEntity.parentId!);
-    emit(FolderLoadSuccess(listFile: files, parentId: event.fileEntity.parentId!));
+    add(FolderEventLoad(idFolder: event.fileEntity.parentId!));
+  }
+
+  Future<FutureOr<void>> _onMove(FolderEventMove event, Emitter<FolderState> emit) async {
+    await fileRepository.updateFile(event.fileEntity);
+    add(FolderEventLoad(idFolder: event.idFolder));
   }
 }

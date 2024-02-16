@@ -19,6 +19,11 @@ class FolderEventInsert extends FolderEvent {
   FolderEventInsert({required this.fileEntity});
   FileEntity fileEntity;
 }
+class FolderEventMove extends FolderEvent {
+  FolderEventMove({required this.fileEntity, required this.idFolder});
+  FileEntity fileEntity;
+  String idFolder;
+}
 
 
 
