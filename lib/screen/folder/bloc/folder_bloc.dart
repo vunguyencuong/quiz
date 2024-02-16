@@ -25,6 +25,9 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
   Future<FutureOr<void>> _onLoad(FolderEventLoad event, Emitter<FolderState> emit) async {
     emit(FolderLoadInProgress(parentId: event.idFolder));
     final files = await fileRepository.getFilesByParentId(event.idFolder);
+    if(files.isEmpty){
+      print('Empty');
+    }
     emit(FolderLoadSuccess(listFile: files, parentId: event.idFolder));
   }
 

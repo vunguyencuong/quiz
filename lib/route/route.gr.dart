@@ -18,12 +18,15 @@ abstract class _$AppRouter extends RootStackRouter {
     FolderRoute.name: (routeData) {
       final pathParams = routeData.inheritedPathParams;
       final args = routeData.argsAs<FolderRouteArgs>(
-          orElse: () =>
-              FolderRouteArgs(idFolder: pathParams.getString('idFolder')));
+          orElse: () => FolderRouteArgs(
+                idFolder: pathParams.getString('idFolder'),
+                name: pathParams.getString('name'),
+              ));
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: FolderScreen(
           idFolder: args.idFolder,
+          name: args.name,
           key: args.key,
         ),
       );
@@ -54,15 +57,20 @@ abstract class _$AppRouter extends RootStackRouter {
 class FolderRoute extends PageRouteInfo<FolderRouteArgs> {
   FolderRoute({
     required String idFolder,
+    required String name,
     Key? key,
     List<PageRouteInfo>? children,
   }) : super(
           FolderRoute.name,
           args: FolderRouteArgs(
             idFolder: idFolder,
+            name: name,
             key: key,
           ),
-          rawPathParams: {'idFolder': idFolder},
+          rawPathParams: {
+            'idFolder': idFolder,
+            'name': name,
+          },
           initialChildren: children,
         );
 
@@ -74,16 +82,19 @@ class FolderRoute extends PageRouteInfo<FolderRouteArgs> {
 class FolderRouteArgs {
   const FolderRouteArgs({
     required this.idFolder,
+    required this.name,
     this.key,
   });
 
   final String idFolder;
 
+  final String name;
+
   final Key? key;
 
   @override
   String toString() {
-    return 'FolderRouteArgs{idFolder: $idFolder, key: $key}';
+    return 'FolderRouteArgs{idFolder: $idFolder, name: $name, key: $key}';
   }
 }
 

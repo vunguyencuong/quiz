@@ -21,7 +21,7 @@ class AppRouter extends _$AppRouter {
     ),
     MaterialRoute(
         page: FolderRoute.page,
-        path: '/folder/:idFolder',
+        path: '/folder/:idFolder/:name',
     ),
     MaterialRoute(
         page: LocationFileRoute.page,

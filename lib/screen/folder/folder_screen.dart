@@ -10,31 +10,40 @@ import 'bloc/folder_bloc.dart';
 
 @RoutePage()
 class FolderScreen extends StatelessWidget {
-  FolderScreen({@PathParam('idFolder') required this.idFolder, super.key});
+  FolderScreen({
+    @PathParam('idFolder') required this.idFolder,
+    @PathParam('name') required this.name,
+    super.key});
 
   String idFolder;
+  String name;
 
   @override
   Widget build(BuildContext context) {
+    print('FolderScreen: $idFolder, $name');
     return BlocProvider(
       create: (BuildContext context) =>
           FolderBloc(database: AppDatabase.getInstance())
             ..add(FolderEventLoad(idFolder: idFolder)),
-      child: FolderScreenUI(idFolder: idFolder),
+      child: FolderScreenUI(name: name, idFolder: idFolder),
     );
   }
 }
 
 class FolderScreenUI extends StatelessWidget {
-  FolderScreenUI({required this.idFolder, super.key});
+  FolderScreenUI({
+    required this.idFolder,
+    required this.name,
+    super.key});
 
   String idFolder;
+  String name;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(idFolder),
+          title: Text(name),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
@@ -62,6 +71,11 @@ class FolderScreenUI extends StatelessWidget {
               );
             }
             if (state is FolderLoadSuccess) {
+              if(state.listFile.isEmpty){
+                return const Center(
+                  child: Text('Empty'),
+                );
+              }
               return ListView.builder(
                 itemCount: state.listFile.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -131,7 +145,7 @@ class FolderScreenUI extends StatelessWidget {
                     onTap: () {
                       if (file.type == FileType.folder) {
                         AutoRouter.of(context)
-                            .push(FolderRoute(idFolder: file.id));
+                            .push(FolderRoute(name: file.name, idFolder: file.id));
                       } else {
                         // AutoRouter.of(context).push('/file/${file.id}');
                       }
@@ -247,6 +261,7 @@ Future _insertFileDialog(BuildContext context, FileEntity file) {
               height: 10,
             ),
             DropdownButton(
+              isExpanded: true,
               items: items,
               onChanged: (value) {
                 file.type = value == 'folder' ? FileType.folder : FileType.file;
