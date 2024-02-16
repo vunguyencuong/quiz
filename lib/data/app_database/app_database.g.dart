@@ -69,7 +69,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -188,6 +188,26 @@ class _$FileRepository extends FileRepository {
             bytes: row['bytes'] as Uint8List?,
             size: row['size'] as int?),
         arguments: [parentId]);
+  }
+
+  @override
+  Future<FileEntity?> getFileById(String id) async {
+    return _queryAdapter.query('SELECT * FROM FileEntity WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => FileEntity(
+            id: row['id'] as String?,
+            name: row['name'] as String,
+            type: FileType.values[row['type'] as int],
+            path: row['path'] as String?,
+            parentId: row['parentId'] as String?,
+            lastOpened: row['lastOpened'] as int,
+            bytes: row['bytes'] as Uint8List?,
+            size: row['size'] as int?),
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> deleteAllFile() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM FileEntity');
   }
 
   @override

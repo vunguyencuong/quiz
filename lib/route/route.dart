@@ -1,5 +1,9 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
 import 'package:smart_printer/screen/home/home_screen.dart';
+import 'package:smart_printer/screen/location_file/location_file_screen.dart';
+
+import '../screen/folder/folder_screen.dart';
 
 
 part 'route.gr.dart';
@@ -15,5 +19,13 @@ class AppRouter extends _$AppRouter {
       initial: true,
       path: '/',
     ),
+    MaterialRoute(
+        page: FolderRoute.page,
+        path: '/folder/:idFolder',
+    ),
+    MaterialRoute(
+        page: LocationFileRoute.page,
+        path: '/location_file/:id',
+    )
   ];
 }

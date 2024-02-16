@@ -20,7 +20,7 @@ main() async {
     await fileRepository.insertFile(root);
     final files = await fileRepository.getRecentFiles();
     for (var file in files) {
-      print('${file.id} ${file.name} ${file.path} ${file.parentId} ${file.lastOpened} ${file.bytes} ${file.size}');
+      print('${file.id} ${file.name} ${file.type} ${file.path} ${file.parentId} ${file.lastOpened} ${file.bytes} ${file.size}');
     }
     expect(files.length, 1);
   });

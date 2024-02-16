@@ -18,4 +18,10 @@ abstract class FileRepository {
 
   @delete
   Future<void> deleteFile(FileEntity file);
+
+  @Query('SELECT * FROM FileEntity WHERE id = :id')
+  Future<FileEntity?> getFileById(String id);
+
+  @Query('DELETE FROM FileEntity')
+  Future<void> deleteAllFile();
 }

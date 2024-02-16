@@ -15,7 +15,7 @@ class HomeScreen extends StatelessWidget {
         body: const Center(),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            AutoRouter.of(context).pushNamed('/folder');
+            AutoRouter.of(context).pushNamed('/folder/root');
           },
         )
       ),
