@@ -7,6 +7,18 @@ class FolderEventLoad extends FolderEvent {
   FolderEventLoad({required this.idFolder});
   String idFolder;
 }
+class FolderEventSave extends FolderEvent {
+  FolderEventSave({required this.fileEntity});
+  FileEntity fileEntity;
+}
+class FolderEventDelete extends FolderEvent {
+  FolderEventDelete({required this.fileEntity});
+  FileEntity fileEntity;
+}
+class FolderEventInsert extends FolderEvent {
+  FolderEventInsert({required this.fileEntity});
+  FileEntity fileEntity;
+}
 
 
 
