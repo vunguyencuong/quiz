@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_printer/data/app_database/app_database.dart';
 import 'package:smart_printer/data/entities/file_entity.dart';
 import 'package:smart_printer/route/route.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'bloc/location_file_bloc.dart';
 
 @RoutePage()
@@ -46,6 +46,12 @@ class LocationFileUI extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(name),
+        // leading: InkWell(
+        //   child: const Center(child: FaIcon(FontAwesomeIcons.arrowLeft)),
+        //   onTap: () {
+        //     AutoRouter.of(context).pop();
+        //   },
+        // )
       ),
       floatingActionButton: FloatingActionButton(
         onPressed:(){
@@ -77,12 +83,17 @@ class LocationFileUI extends StatelessWidget {
                           _showDialog(context, 'Cannot move to this folder');
                           return;
                         }
-                        idFolder = await AutoRouter.of(context).push(
+                        var result = await AutoRouter.of(context).push(
                             LocationFileRoute(
                               id: file.id, idFolderNeedToMove: idFolderNeedToMove,
                               name: file.name,
-                            )) as String;
-                        AutoRouter.of(context).pop(idFolder);
+                            )) ;
+                        if(result != null) {
+                          idFolder = result as String;
+                          AutoRouter.of(context).pop(idFolder);
+                        }
+
+
                       }
                     },
                   );
