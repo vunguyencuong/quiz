@@ -15,6 +15,18 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
+    CompletedRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child:  CompletedScreen(),
+      );
+    },
+    CreateQuizRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: CreateQuizScreen(),
+      );
+    },
     FolderRoute.name: (routeData) {
       final pathParams = routeData.inheritedPathParams;
       final args = routeData.argsAs<FolderRouteArgs>(
@@ -29,6 +41,12 @@ abstract class _$AppRouter extends RootStackRouter {
           name: args.name,
           key: args.key,
         ),
+      );
+    },
+    HomeQuizRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: HomeQuizScreen(),
       );
     },
     HomeRoute.name: (routeData) {
@@ -55,7 +73,53 @@ abstract class _$AppRouter extends RootStackRouter {
         ),
       );
     },
+    LoginRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: LoginScreen(),
+      );
+    },
+    QuizRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: QuizScreen(),
+      );
+    },
+    RegisterRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: RegisterScreen(),
+      );
+    },
   };
+}
+
+/// generated route for
+/// [CompletedScreen]
+class CompletedRoute extends PageRouteInfo<void> {
+  const CompletedRoute({List<PageRouteInfo>? children})
+      : super(
+          CompletedRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'CompletedRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [CreateQuizScreen]
+class CreateQuizRoute extends PageRouteInfo<void> {
+  const CreateQuizRoute({List<PageRouteInfo>? children})
+      : super(
+          CreateQuizRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'CreateQuizRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -102,6 +166,20 @@ class FolderRouteArgs {
   String toString() {
     return 'FolderRouteArgs{idFolder: $idFolder, name: $name, key: $key}';
   }
+}
+
+/// generated route for
+/// [HomeQuizScreen]
+class HomeQuizRoute extends PageRouteInfo<void> {
+  const HomeQuizRoute({List<PageRouteInfo>? children})
+      : super(
+          HomeQuizRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'HomeQuizRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -169,4 +247,46 @@ class LocationFileRouteArgs {
   String toString() {
     return 'LocationFileRouteArgs{id: $id, idFolderNeedToMove: $idFolderNeedToMove, name: $name, key: $key}';
   }
+}
+
+/// generated route for
+/// [LoginScreen]
+class LoginRoute extends PageRouteInfo<void> {
+  const LoginRoute({List<PageRouteInfo>? children})
+      : super(
+          LoginRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'LoginRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [QuizScreen]
+class QuizRoute extends PageRouteInfo<void> {
+  const QuizRoute({List<PageRouteInfo>? children})
+      : super(
+          QuizRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'QuizRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [RegisterScreen]
+class RegisterRoute extends PageRouteInfo<void> {
+  const RegisterRoute({List<PageRouteInfo>? children})
+      : super(
+          RegisterRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RegisterRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }

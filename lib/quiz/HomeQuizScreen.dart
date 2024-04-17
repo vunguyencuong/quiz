@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../route/route.dart';
 import 'LoginScreen.dart';
 
 @RoutePage()
@@ -39,7 +40,7 @@ class HomeQuizScreen extends StatelessWidget {
                   onPressed: () {
                     AutoRouter.of(context).push(const QuizRoute());
                   },
-                  child: const Text('/joinQuiz'),
+                  child: const Text('Join Quiz'),
                 ),
               ],
             ),

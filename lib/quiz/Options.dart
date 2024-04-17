@@ -22,7 +22,7 @@ class Options extends StatelessWidget {
             },
             child: Container(
               height: 48,
-              width: 240,
+              width: 320,
               margin: const EdgeInsets.symmetric(vertical: 2), // Khoảng cách giữa các câu hỏi
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
@@ -37,7 +37,14 @@ class Options extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(options, style: TextStyle(fontWeight: FontWeight.bold)),
+                    Expanded(
+                      child: Text(
+                        options,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                        maxLines: 2, // Giới hạn số dòng hiển thị
+                        overflow: TextOverflow.ellipsis, // Hiển thị dấu "..." khi vượt quá số dòng
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -48,3 +55,4 @@ class Options extends StatelessWidget {
     });
   }
 }
+

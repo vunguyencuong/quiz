@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:quiz/app_router.dart';
+
+import '../route/route.dart';
+
 
 
 @RoutePage()
@@ -42,31 +44,42 @@ class _RegisterFormState extends State<RegisterForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        TextField(
-          controller: _usernameController,
-          decoration: InputDecoration(
-            labelText: 'Username',
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            margin: const EdgeInsets.only(bottom: 20.0),
+            child: TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+              ),
+            ),
           ),
-        ),
-        SizedBox(height: 20),
-        TextField(
-          controller: _passwordController,
-          obscureText: true,
-          decoration: InputDecoration(
-            labelText: 'Password',
+          Container(
+            margin: const EdgeInsets.only(bottom: 20.0),
+            child: TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+              ),
+            ),
           ),
-        ),
-        SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: _register,
-          child: Text('Register'),
-        ),
-      ],
+          Container(
+            margin: const EdgeInsets.only(top: 20.0),
+            child: ElevatedButton(
+              onPressed: _register,
+              child: Text('Register'),
+            ),
+          ),
+        ],
+      ),
     );
   }
+
 
   @override
   void dispose() {

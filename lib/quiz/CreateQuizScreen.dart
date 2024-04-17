@@ -11,7 +11,7 @@ class CreateQuizScreen extends StatefulWidget {
 }
 
 class _CreateQuizScreenState extends State<CreateQuizScreen> {
-  String qrData = 'This is a sample QR code data'; // Chuỗi đầu vào cho mã QR
+  String qrData = 'This is a sample QR code data';
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +61,9 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                       title: const Text('QR Code'),
                       content: QrImageView(
                         data: qrData,
-                        version: QrVersions.auto,
+                        version: 1,
                         size: 200.0,
+                        gapless: false,
                       ),
                       actions: [
                         TextButton(

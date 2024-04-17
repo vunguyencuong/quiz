@@ -1,7 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:quiz/app_router.dart';
+
+import '../route/route.dart';
 
 class AuthController extends GetxController {
   var isAdmin = false.obs; // Mặc định là false, nghĩa là không phải admin
@@ -48,7 +49,7 @@ class _LoginFormState extends State<LoginForm> {
     } else {
       widget._authController.isAdmin.value = false; // Đặt isAdmin thành false nếu không phải admin
     }
-
+    _clearFields();
     AutoRouter.of(context).push(const HomeQuizRoute());
 
   }
@@ -64,38 +65,45 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        TextField(
-          controller: _usernameController,
-          decoration: const InputDecoration(
-            labelText: "Username",
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            margin: const EdgeInsets.only(bottom: 20.0),
+            child: TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(
+                labelText: "Username",
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 20),
-        TextField(
-          controller: _passwordController,
-          obscureText: true,
-          decoration: const InputDecoration(
-            labelText: 'Password',
+          Container(
+            margin: const EdgeInsets.only(bottom: 20.0),
+            child: TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
                 onPressed: _login,
                 child: const Text('Login'),
-            ),
-            ElevatedButton(
-                onPressed: _register,
-                child: const Text('Register')
-            ),
-          ],
-        )
-      ],
+              ),
+              ElevatedButton(
+                  onPressed: _register,
+                  child: const Text('Register')
+              ),
+            ],
+          )
+        ],
+      ),
     );
   }
 

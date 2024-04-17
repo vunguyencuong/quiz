@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:quiz/Options.dart';
 import 'package:http/http.dart' as http;
+import 'package:smart_printer/quiz/Options.dart';
+import 'package:smart_printer/route/route.dart';
 import 'CompleteScreen.dart';
 
 class QuizController extends GetxController {
+  late BuildContext _context;
   var responseData = [].obs;
   var number = 0.obs;
   late Timer _timer;
@@ -19,6 +22,10 @@ class QuizController extends GetxController {
     super.onInit();
     api();
     startTime();
+  }
+
+  void setContext(BuildContext context) {
+    _context = context;
   }
 
   Future<void> api() async {
@@ -33,7 +40,9 @@ class QuizController extends GetxController {
   }
 
   void nextQuestion() {
-    // _timer.cancel();
+    _timer.cancel();
+    print("number");
+    print(number.value);
     if (number.value == 9) {
       completed();
       number.value = 0;
@@ -41,20 +50,17 @@ class QuizController extends GetxController {
       number.value++;
       _secondRemaining.value = 15;
       updateShuffleOption();
-      // startTime();
+      startTime();
     }
   }
 
   void completed() {
-    Get.offAll(() => const CompletedScreen());
+    AutoRouter.of(_context).push(const CompletedRoute());
   }
 
   void updateShuffleOption() {
     print(responseData[number.value]['correct_answer']);
     print("incorrect");
-    // print(responseData[number.value]['incorrect_answer'][0]);
-    // print(responseData[number.value]['incorrect_answer'][1]);
-    // print(responseData[number.value]['incorrect_answer'][2]);
     print("check data: ");
     print(responseData[number.value]);
     shuffledOptions.value = shuffledOption([
@@ -81,27 +87,26 @@ class QuizController extends GetxController {
   }
 
   void startTime() {
-    // _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondRemaining.value > 0) {
+        _secondRemaining.value--;
+      } else {
+        _timer.cancel();
+        nextQuestion();
+      }
+    });
+    // Future.delayed(const Duration(seconds: 1), () {
     //   if (_secondRemaining.value > 0) {
     //     _secondRemaining.value--;
     //   } else {
     //     nextQuestion();
-    //     _secondRemaining.value = 15;
-    //     updateShuffleOption();
+    //     // _secondRemaining.value = 15;
+    //     // updateShuffleOption();
+    //   }
+    //   if (_secondRemaining.value > 0) {
+    //     startTime(); // Gọi lại hàm này để tiếp tục đếm ngược
     //   }
     // });
-    Future.delayed(const Duration(seconds: 1), () {
-      if (_secondRemaining.value > 0) {
-        _secondRemaining.value--;
-      } else {
-        nextQuestion();
-        _secondRemaining.value = 15;
-        updateShuffleOption();
-      }
-      if (_secondRemaining.value > 0) {
-        startTime(); // Gọi lại hàm này để tiếp tục đếm ngược
-      }
-    });
   }
 }
 
@@ -111,6 +116,7 @@ class QuizScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _quizController.setContext(context);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8),

@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:smart_printer/screen/home/home_screen.dart';
 import 'package:smart_printer/screen/location_file/location_file_screen.dart';
 
+import '../quiz/CompleteScreen.dart';
+import '../quiz/CreateQuizScreen.dart';
+import '../quiz/HomeQuizScreen.dart';
+import '../quiz/LoginScreen.dart';
+import '../quiz/QuizScreen.dart';
+import '../quiz/RegisterScreen.dart';
 import '../screen/folder/folder_screen.dart';
 
 

@@ -1,10 +1,30 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
+
+
+class Participant {
+  final String name;
+  final int score;
+
+  Participant(this.name, this.score);
+}
+
 @RoutePage()
 class CompletedScreen extends StatelessWidget {
-  const CompletedScreen({super.key});
-
+  CompletedScreen({super.key});
+  List<Participant> participants = [
+    Participant('Alice', 95),
+    Participant('Bob', 85),
+    Participant('Charlie', 80),
+    Participant('David', 75),
+    Participant('Emma', 70),
+    Participant('Frank', 65),
+    Participant('Grace', 60),
+    Participant('Hannah', 55),
+    Participant('Ian', 50),
+    Participant('Julia', 45),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -203,7 +223,21 @@ class CompletedScreen extends StatelessWidget {
                 )
               ],
             ),
-          )
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: ListView.builder(
+              itemCount: participants.length,
+              itemBuilder: (context, index) {
+                final participant = participants[index];
+                return ListTile(
+                  leading: Text('${index + 1}.'),
+                  title: Text(participant.name),
+                  trailing: Text('${participant.score} pts'),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
