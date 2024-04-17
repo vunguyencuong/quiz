@@ -15,9 +15,9 @@ class AppRouter extends _$AppRouter {
   @override
   final List<AutoRoute> routes = [
     MaterialRoute(
-      page: HomeRoute.page,
+      page: LoginRoute.page,
       initial: true,
-      path: '/',
+      path: '/login',
     ),
     MaterialRoute(
         page: FolderRoute.page,
@@ -26,6 +26,26 @@ class AppRouter extends _$AppRouter {
     MaterialRoute(
         page: LocationFileRoute.page,
         path: '/location_file/:id/:idFolderNeedToMove/:name',
-    )
+    ),
+    MaterialRoute(
+      page: CompletedRoute.page,
+      path: '/completed',
+    ),
+    MaterialRoute(
+      page: CreateQuizRoute.page,
+      path: '/createQuiz',
+    ),
+    MaterialRoute(
+      page: HomeQuizRoute.page,
+      path: '/homeQuiz',
+    ),
+    MaterialRoute(
+      page: QuizRoute.page,
+      path: '/quiz',
+    ),
+    MaterialRoute(
+      page: RegisterRoute.page,
+      path: '/register',
+    ),
   ];
 }
