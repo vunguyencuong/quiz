@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:uuid/uuid.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 @RoutePage()
 class CreateQuizScreen extends StatefulWidget {
@@ -11,7 +13,70 @@ class CreateQuizScreen extends StatefulWidget {
 }
 
 class _CreateQuizScreenState extends State<CreateQuizScreen> {
-  String qrData = 'This is a sample QR code data';
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController startTimeController = TextEditingController();
+  final TextEditingController durationController = TextEditingController();
+  final TextEditingController usersController = TextEditingController();
+
+  List<Map<String, dynamic>> questions = [
+    {
+      'questionText': 'What is the capital of France?',
+      'choices': [
+        {
+          'choiceText': 'Paris',
+          'correct': true,
+          'order': 0, // Add the 'order' field
+        },
+        {
+          'choiceText': 'London',
+          'correct': false,
+          'order': 0, // Add the 'order' field
+        },
+        {
+          'choiceText': 'Berlin',
+          'correct': false,
+          'order': 0, // Add the 'order' field
+        },
+        {
+          'choiceText': 'Madrid',
+          'correct': false,
+          'order': 0, // Add the 'order' field
+        },
+      ],
+      'order': 0,
+      'quizId': 0,
+      'multipleChoice': true, // Set 'multipleChoice' to true
+    },
+    {
+      'questionText': 'What is the capital of England?',
+      'choices': [
+        {
+          'choiceText': 'Paris',
+          'correct': false,
+          'order': 0, // Add the 'order' field
+        },
+        {
+          'choiceText': 'London',
+          'correct': true,
+          'order': 0, // Add the 'order' field
+        },
+        {
+          'choiceText': 'Berlin',
+          'correct': false,
+          'order': 0, // Add the 'order' field
+        },
+        {
+          'choiceText': 'Madrid',
+          'correct': false,
+          'order': 0, // Add the 'order' field
+        },
+      ],
+      'order': 1,
+      'quizId': 0,
+      'multipleChoice': true, // Set 'multipleChoice' to true
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -20,93 +85,74 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
         title: const Text('Create Quizz'),
       ),
       body: Container(
-        color: Colors.white, // Màu nền của màn hình
+        color: Colors.white,
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                // Xử lý khi nhấn nút import file JSON 1
-              },
-              child: const Text('Import File JSON 1'),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // Xử lý khi nhấn nút import file JSON 2
-              },
-              child: const Text('Import File JSON 2'),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // Xử lý khi nhấn nút import file JSON 3
-              },
-              child: const Text('Import File JSON 3'),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () async {
-                try {
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: 'Name')),
+              TextField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(labelText: 'Description')),
+              TextField(
+                controller: startTimeController,
+                decoration: InputDecoration(labelText: 'Start Time'),
+                readOnly: true, // make it uneditable by user
+                onTap: () async {
+                  final DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                  );
+                  if (pickedDate != null) {
+                    // Format the date-time string to include an offset from UTC/Greenwich
+                    startTimeController.text =
+                        "${pickedDate.toUtc().toIso8601String()}";
+                  }
+                },
+              ),
+              TextField(
+                controller: durationController,
+                decoration: InputDecoration(labelText: 'Duration'),
+                readOnly: true, // make it uneditable by user
+                onTap: () async {
+                  final TimeOfDay? pickedTime = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                  );
+                  if (pickedTime != null) {
+                    final durationInMinutes =
+                        pickedTime.hour * 60 + pickedTime.minute;
+                    durationController.text = durationInMinutes.toString();
+                  }
+                },
+              ),
+              TextField(
+                  controller: usersController,
+                  decoration: InputDecoration(labelText: 'Users')),
+              ElevatedButton(
+                onPressed: () async {
+                  final sessionId = Uuid().v4();
                   final quizId = await createQuiz(
+                    sessionId: sessionId,
                     context: context,
-                    name: 'string',
-                    description: 'string',
-                    startTime: '2024-04-19T16:09:54.111Z',
-                    duration: '00:00:00',
-                    users: ['string'],
-                    questions: [
-                      {
-                        'questionText': 'string',
-                        'choices': [
-                          {
-                            'choiceText': 'string',
-                            'correct': true,
-                            'order': 0,
-                          },
-                        ],
-                        'order': 0,
-                        'quizId': 0,
-                        'multipleChoice': true,
-                      },
-                    ],
+                    name: nameController.text,
+                    description: descriptionController.text,
+                    startTime: startTimeController.text,
+                    duration: int.parse(durationController.text),
+                    users: [usersController.text],
+                    questions: questions,
                   );
-                  setState(() {
-                    qrData =
-                        quizId; // Use the returned 'quizId' as the QR code data
-                  });
-                  QrImage(
-                   QrCode.fromData(data: qrData, errorCorrectLevel: QrErrorCorrectLevel.L),
-                  );
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Dialog(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-
-                            TextButton(
-                              onPressed: () {
-                                // Implement your functionality to open the link
-                              },
-                              child: Text(
-                                  'http://35.197.148.25:8080/api/v1/create-quiz/$quizId'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                } catch (e) {
-                  print('Failed to create quiz: $e');
-                }
-              },
-              child: const Text('Submit'),
-            ),
-          ],
+                },
+                child: const Text('Submit'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -114,16 +160,18 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
 }
 
 Future<String> createQuiz({
+  required String sessionId,
   required BuildContext context,
   required String name,
   required String description,
   required String startTime,
-  required String duration,
+  required int duration,
   required List<String> users,
   required List<Map<String, dynamic>> questions,
 }) async {
-  showLoadingDialog(context);
-  final String apiUrl = 'http://35.197.148.25:8080/api/v1/create-quiz/1';
+  showLoadingDialog(context, sessionId);
+  final String apiUrl =
+      'http://35.197.148.25:8080/api/v1/create-quiz/$sessionId';
 
   final response = await http.post(
     Uri.parse(apiUrl),
@@ -145,24 +193,46 @@ Future<String> createQuiz({
     }),
   );
 
-  Navigator.pop(context); // Dismiss the dialog
-
+  //print the json
+  print(jsonEncode(<String, dynamic>{
+    'name': name,
+    'description': description,
+    'config': {
+      'startTime': startTime,
+      'duration': duration,
+    },
+    'users': users,
+    'questions': questions,
+  }));
   if (response.statusCode == 200) {
     final Map<String, dynamic> responseBody = jsonDecode(response.body);
+    Fluttertoast.showToast(
+      msg: "Quiz created successfully",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+    );
+    Navigator.pop(context); // Dismiss the dialog
     return responseBody['quizId'] as String; // Extract the 'quizId' field
   } else {
+    Fluttertoast.showToast(
+      msg: "Failed to create quiz ${response.statusCode}",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+    );
     print('Failed to create quiz. Status code: ${response.statusCode}');
+    Navigator.pop(context); // Dismiss the dialog
     throw Exception('Failed to create quiz');
   }
 }
 
-Stream<String> getStatus() async* {
+Stream<String> getStatus(String sessionId) async* {
   while (true) {
     final response = await http.get(
-      Uri.parse('http://35.197.148.25:8080/api/v1/create-quiz/status/1'),
+      Uri.parse(
+          'http://35.197.148.25:8080/api/v1/create-quiz/status/$sessionId'),
       headers: <String, String>{
         'accept': '*/*',
-        'username': 'string',
+        'username': "string",
       },
     );
     final Map<String, dynamic> responseBody = jsonDecode(response.body);
@@ -171,7 +241,7 @@ Stream<String> getStatus() async* {
   }
 }
 
-void showLoadingDialog(BuildContext context) {
+void showLoadingDialog(BuildContext context, String sessionId) {
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -185,12 +255,10 @@ void showLoadingDialog(BuildContext context) {
               CircularProgressIndicator(),
               SizedBox(height: 20),
               StreamBuilder<String>(
-                stream: getStatus(),
+                stream: getStatus(sessionId),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Text('Loading...');
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
                   } else {
                     return Text('Status: ${snapshot.data}');
                   }
