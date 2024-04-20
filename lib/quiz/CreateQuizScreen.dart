@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:convert';
@@ -18,6 +21,9 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
   final TextEditingController startTimeController = TextEditingController();
   final TextEditingController durationController = TextEditingController();
   final TextEditingController usersController = TextEditingController();
+  var genQrCode = 0;
+
+  List pickedFiles = [];
 
   List<Map<String, dynamic>> questions = [
     {
@@ -98,6 +104,12 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
               TextField(
                   controller: descriptionController,
                   decoration: InputDecoration(labelText: 'Description')),
+              TextButton(
+                  onPressed: () async {
+                    importJsonFile();
+                  }, 
+                  child: const Text('Import json name')
+              ),
               TextField(
                 controller: startTimeController,
                 decoration: InputDecoration(labelText: 'Start Time'),
@@ -132,9 +144,28 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   }
                 },
               ),
+              TextButton(
+                  onPressed: () async {
+                    importJsonFile();
+                  },
+                  child: const Text('Import json config')
+              ),
               TextField(
                   controller: usersController,
                   decoration: InputDecoration(labelText: 'Users')),
+              TextButton(
+                  onPressed: () async {
+                    importJsonFile();
+                  },
+                  child: const Text('Import json users')
+              ),
+              TextButton(
+                  onPressed: () async {
+                    importJsonFile();
+                  },
+                  child: const Text('Import json questions')
+              ),
+              SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () async {
                   final sessionId = Uuid().v4();
@@ -148,9 +179,48 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                     users: [usersController.text],
                     questions: questions,
                   );
+                  if(quizId.isNotEmpty){
+                    setState(() {
+                      genQrCode = 1;
+                    });
+                  }
+                  print("check");
+                  print(genQrCode);
                 },
                 child: const Text('Submit'),
               ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                  onPressed: () async {
+                      if(genQrCode == 1){
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context){
+                              return AlertDialog(
+                                  title: Text('QR Code'),
+                                  content: Container(
+                                    width: 200, // Điều chỉnh kích thước của Container tùy thuộc vào nhu cầu của bạn
+                                    height: 200,
+                                    child: Center(
+                                      child: QrImageView(
+                                         data: genQrCode.toString(),
+                                        size: 200,
+                                      ),
+                                   ),
+                                  ),
+                              );
+                            }
+                        );
+                      } else{
+                        Fluttertoast.showToast(
+                          msg: "Failed to gen qr code",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                        );
+                      }
+                  },
+                  child: const Text("Gen QR Code")
+              )
             ],
           ),
         ),
@@ -212,7 +282,7 @@ Future<String> createQuiz({
       gravity: ToastGravity.BOTTOM,
     );
     Navigator.pop(context); // Dismiss the dialog
-    return responseBody['quizId'] as String; // Extract the 'quizId' field
+    return responseBody['quizId'].toString(); // Extract the 'quizId' field
   } else {
     Fluttertoast.showToast(
       msg: "Failed to create quiz ${response.statusCode}",
@@ -241,6 +311,7 @@ Stream<String> getStatus(String sessionId) async* {
   }
 }
 
+
 void showLoadingDialog(BuildContext context, String sessionId) {
   showDialog(
     context: context,
@@ -259,6 +330,8 @@ void showLoadingDialog(BuildContext context, String sessionId) {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Text('Loading...');
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
                   } else {
                     return Text('Status: ${snapshot.data}');
                   }
@@ -270,4 +343,21 @@ void showLoadingDialog(BuildContext context, String sessionId) {
       );
     },
   );
+}
+
+Future<void> importJsonFile() async {
+    var result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+      allowedExtensions:  ['json'],
+    );
+    if (result != null && result.files.isNotEmpty) {
+      List<File> pickedFiles = result.files.map((file) => File(file.path!)).toList();
+      print("Imported files: $pickedFiles");
+    } else {
+      Fluttertoast.showToast(
+        msg: "Please select a JSON file",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    }
 }
