@@ -4,8 +4,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-
-
 @RoutePage()
 class CreateQuizScreen extends StatefulWidget {
   @override
@@ -50,55 +48,61 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: () {
-                createQuiz(
-                  name: 'string',
-                  description: 'string',
-                  startTime: '2024-04-19T16:09:54.111Z',
-                  duration: '00:00:00',
-                  users: ['string'],
-                  questions: [
-                    {
-                      'questionText': 'string',
-                      'choices': [
-                        {
-                          'choiceText': 'string',
-                          'correct': true,
-                          'order': 0,
-                        },
-                      ],
-                      'order': 0,
-                      'quizId': 0,
-                      'multipleChoice': true,
-                    },
-                  ],
-                );
-                setState(() {
-                  qrData = 'Dữ liệu của bạn';
-                });
-                // Hiển thị dialog chứa hình ảnh mã QR
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('QR Code'),
-                      content: QrImageView(
-                        data: qrData,
-                        version: 1,
-                        size: 200.0,
-                        gapless: false,
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
+              onPressed: () async {
+                try {
+                  final quizId = await createQuiz(
+                    context: context,
+                    name: 'string',
+                    description: 'string',
+                    startTime: '2024-04-19T16:09:54.111Z',
+                    duration: '00:00:00',
+                    users: ['string'],
+                    questions: [
+                      {
+                        'questionText': 'string',
+                        'choices': [
+                          {
+                            'choiceText': 'string',
+                            'correct': true,
+                            'order': 0,
                           },
-                          child: const Text('Đóng'),
+                        ],
+                        'order': 0,
+                        'quizId': 0,
+                        'multipleChoice': true,
+                      },
+                    ],
+                  );
+                  setState(() {
+                    qrData =
+                        quizId; // Use the returned 'quizId' as the QR code data
+                  });
+                  QrImage(
+                   QrCode.fromData(data: qrData, errorCorrectLevel: QrErrorCorrectLevel.L),
+                  );
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+
+                            TextButton(
+                              onPressed: () {
+                                // Implement your functionality to open the link
+                              },
+                              child: Text(
+                                  'http://35.197.148.25:8080/api/v1/create-quiz/$quizId'),
+                            ),
+                          ],
                         ),
-                      ],
-                    );
-                  },
-                );
+                      );
+                    },
+                  );
+                } catch (e) {
+                  print('Failed to create quiz: $e');
+                }
               },
               child: const Text('Submit'),
             ),
@@ -109,7 +113,8 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
   }
 }
 
-Future<void> createQuiz({
+Future<String> createQuiz({
+  required BuildContext context,
   required String name,
   required String description,
   required String startTime,
@@ -117,6 +122,7 @@ Future<void> createQuiz({
   required List<String> users,
   required List<Map<String, dynamic>> questions,
 }) async {
+  showLoadingDialog(context);
   final String apiUrl = 'http://35.197.148.25:8080/api/v1/create-quiz/1';
 
   final response = await http.post(
@@ -139,9 +145,61 @@ Future<void> createQuiz({
     }),
   );
 
+  Navigator.pop(context); // Dismiss the dialog
+
   if (response.statusCode == 200) {
-    print('Quiz created successfully');
+    final Map<String, dynamic> responseBody = jsonDecode(response.body);
+    return responseBody['quizId'] as String; // Extract the 'quizId' field
   } else {
     print('Failed to create quiz. Status code: ${response.statusCode}');
+    throw Exception('Failed to create quiz');
   }
+}
+
+Stream<String> getStatus() async* {
+  while (true) {
+    final response = await http.get(
+      Uri.parse('http://35.197.148.25:8080/api/v1/create-quiz/status/1'),
+      headers: <String, String>{
+        'accept': '*/*',
+        'username': 'string',
+      },
+    );
+    final Map<String, dynamic> responseBody = jsonDecode(response.body);
+    yield responseBody['data'] as String;
+    await Future.delayed(Duration(seconds: 1));
+  }
+}
+
+void showLoadingDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 20),
+              StreamBuilder<String>(
+                stream: getStatus(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Text('Loading...');
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return Text('Status: ${snapshot.data}');
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
