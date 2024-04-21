@@ -7,7 +7,7 @@ import 'LoginScreen.dart';
 @RoutePage()
 class HomeQuizScreen extends StatelessWidget {
   final AuthController _authController = Get.find(); // Sử dụng Get.find() để lấy AuthController đã khởi tạo trước đó
-
+  final TextEditingController _quizCodeController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +28,8 @@ class HomeQuizScreen extends StatelessWidget {
                 : Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const TextField(
+                 TextField(
+                   controller: _quizCodeController,
                   decoration: InputDecoration(
                     labelText: 'Enter Quiz Code',
                     fillColor: Color(0xff90CAF9),
@@ -38,7 +39,7 @@ class HomeQuizScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    AutoRouter.of(context).push(const QuizRoute());
+                    AutoRouter.of(context).push(QuizRoute(id: _quizCodeController.text));
                   },
                   child: const Text('Join Quiz'),
                 ),

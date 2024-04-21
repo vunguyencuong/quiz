@@ -47,7 +47,7 @@ class AppRouter extends _$AppRouter {
     ),
     MaterialRoute(
       page: QuizRoute.page,
-      path: '/quiz',
+      path: '/quiz/:id',
     ),
     MaterialRoute(
       page: RegisterRoute.page,

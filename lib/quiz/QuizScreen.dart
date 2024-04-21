@@ -3,24 +3,26 @@ import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:smart_printer/quiz/Options.dart';
 import 'package:smart_printer/route/route.dart';
+import '../data/response/ApiResponse.dart';
 import 'CompleteScreen.dart';
 
 class QuizController extends GetxController {
   late BuildContext _context;
-  var responseData = [].obs;
+  var responseData = List<Question>.empty(growable: true).obs;
   var number = 0.obs;
   late Timer _timer;
   var _secondRemaining = 15.obs;
-  var shuffledOptions = <String>[].obs;
-  var selectedAnswers = <String>[].obs;
+  var shuffledOptions = <Choice>[].obs;
+  var selectedAnswers = <Choice>[].obs;
+
   @override
   void onInit() {
     super.onInit();
-    api();
     startTime();
   }
 
@@ -28,22 +30,28 @@ class QuizController extends GetxController {
     _context = context;
   }
 
-  Future<void> api() async {
-    final response =
-    await http.get(Uri.parse('https://opentdb.com/api.php?amount=10&category=18&difficulty=easy&type=multiple'));
+  Future<void> api(String id) async {
+    final response = await http.get(
+      Uri.parse('http://35.240.159.251:8080/api/v1/join-quiz/$id'),
+      headers: <String, String>{
+        'accept': '*/*',
+        'username': 'string',
+      },
+    );
+
     if (response.statusCode == 200) {
-      var data = jsonDecode(response.body)['results'];
-      responseData.value = data;
+      ApiResponse apiResponse = ApiResponse.fromJson(jsonDecode(response.body));
+      responseData.value = apiResponse.data.questions;
       updateShuffleOption();
     }
-
+    else{
+      AutoRouter.of(_context).push(const CompletedRoute());
+    }
   }
 
   void nextQuestion() {
     _timer.cancel();
-    print("number");
-    print(number.value);
-    if (number.value == 9) {
+    if (number.value == responseData.length - 1) {
       completed();
       number.value = 0;
     } else {
@@ -55,34 +63,19 @@ class QuizController extends GetxController {
   }
 
   void completed() {
-    AutoRouter.of(_context).push(const CompletedRoute());
+    // Navigate to the completed screen
   }
 
   void updateShuffleOption() {
-    print(responseData[number.value]['correct_answer']);
-    print("incorrect");
-    print("check data: ");
-    print(responseData[number.value]);
-    shuffledOptions.value = shuffledOption([
-      responseData[number.value]['correct_answer'],
-      ...(responseData[number.value]['incorrect_answers'] as List)
-    ]);
-    for(String i in shuffledOptions){
-      print("check: $i");
-    }
-  }
-
-  List<String> shuffledOption(List<String> option) {
-    List<String> shuffledOptions = List.from(option);
+    shuffledOptions.value = List<Choice>.from(responseData[number.value].choices);
     shuffledOptions.shuffle();
-    return shuffledOptions;
   }
 
-  void selectAnswer(String answer){
+  void selectAnswer(Choice answer) {
     selectedAnswers.add(answer);
   }
 
-  bool isAnswerSelected(String answer){
+  bool isAnswerSelected(Choice answer) {
     return selectedAnswers.contains(answer);
   }
 
@@ -95,25 +88,18 @@ class QuizController extends GetxController {
         nextQuestion();
       }
     });
-    // Future.delayed(const Duration(seconds: 1), () {
-    //   if (_secondRemaining.value > 0) {
-    //     _secondRemaining.value--;
-    //   } else {
-    //     nextQuestion();
-    //     // _secondRemaining.value = 15;
-    //     // updateShuffleOption();
-    //   }
-    //   if (_secondRemaining.value > 0) {
-    //     startTime(); // Gọi lại hàm này để tiếp tục đếm ngược
-    //   }
-    // });
   }
 }
 
-@RoutePage()
+@RoutePage(name: 'quizRoute')
 class QuizScreen extends StatelessWidget {
   final QuizController _quizController = Get.put(QuizController());
+  final String id;
+  init() {
+    _quizController.api(id);
+  }
 
+  QuizScreen({super.key, required this.id});
   @override
   Widget build(BuildContext context) {
     _quizController.setContext(context);
@@ -174,7 +160,7 @@ class QuizScreen extends StatelessWidget {
                             ),
                             Center(
                               child: Obx(() => Text(
-                                "Question ${_quizController.number.value + 1}/10",
+                                "Question ${_quizController.number.value + 1}/ ${_quizController.responseData.length}",
                                 style: const TextStyle(
                                     color: Color(0xff90CAF9)),
                               )),
@@ -182,9 +168,12 @@ class QuizScreen extends StatelessWidget {
                             const SizedBox(
                               height: 25,
                             ),
-                            Obx(() => Text(_quizController.responseData.isNotEmpty
-                                ? _quizController.responseData[_quizController.number.value]['question']
-                                : '')),
+                            Obx(() => Text(
+                              _quizController.responseData[_quizController.number.value].questionText,
+                              style: const TextStyle(
+                                  color: Colors.black, fontSize: 18),
+                            )
+                            ),
                           ],
                         ),
                       ),
@@ -211,13 +200,12 @@ class QuizScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Column(
               children: [
-                Obx(() => (_quizController.responseData.isNotEmpty &&
-                    _quizController.responseData[_quizController.number.value]
-                    ['incorrect_answers'] !=
-                        null)
+                Obx(() => (
+                    _quizController.shuffledOptions.isNotEmpty
+                )
                     ? Column(
                   children: _quizController.shuffledOptions.map((option) {
-                    return Options(options: option.toString());
+                    return Options(options: option);
                   }).toList(),
                 )
                     : Container()),
