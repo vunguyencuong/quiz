@@ -25,6 +25,8 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
 
   List pickedFiles = [];
 
+
+
   List<Map<String, dynamic>> questions = [
     {
       'questionText': 'What is the capital of France?',
@@ -106,9 +108,35 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   decoration: InputDecoration(labelText: 'Description')),
               TextButton(
                   onPressed: () async {
-                    importJsonFile();
+                    FilePickerResult? result = await FilePicker.platform
+                        .pickFiles(
+                        type: FileType.custom,
+                        allowMultiple: false,
+                        allowedExtensions: ['json']
+                    );
+                    if (result != null) {
+                      List<File> pickedFiles = result.files.map((file) => File(file.path!)).toList();
+                      print("Imported files: $pickedFiles");
+                      File file = File(result.files.single.path!);
+                      try{
+                        String contents = await file.readAsString();
+                        Map<String,dynamic> jsonData = json.decode(contents);
+                        String name = jsonData['name'] ?? '';
+                        String description = jsonData['description'] ?? '';
+                        nameController.text = name;
+                        descriptionController.text = description;
+                      } catch(e){
+                        print("Error reading file: $e");
+                      }
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "Please select a JSON file",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                      );
+                    }
                   }, 
-                  child: const Text('Import json name')
+                  child: const Text('Import json quiz')
               ),
               TextField(
                 controller: startTimeController,
@@ -146,7 +174,35 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
               ),
               TextButton(
                   onPressed: () async {
-                    importJsonFile();
+                    FilePickerResult? result = await FilePicker.platform
+                        .pickFiles(
+                        type: FileType.custom,
+                        allowMultiple: false,
+                        allowedExtensions: ['json']
+                    );
+                    if (result != null) {
+                      List<File> pickedFiles = result.files.map((file) => File(file.path!)).toList();
+                      print("Imported files: $pickedFiles");
+                      File file = File(result.files.single.path!);
+                      try{
+                        String contents = await file.readAsString();
+                        Map<String,dynamic> jsonData = json.decode(contents);
+                        String startTime = jsonData['startTime'].toString() ?? '';
+                        String duration = jsonData['duration'].toString() ?? '';
+                        print(startTime);
+                        print(duration);
+                        startTimeController.text = startTime;
+                        durationController.text = duration;
+                      } catch(e){
+                        print("Error reading file: $e");
+                      }
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "Please select a JSON file",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                      );
+                    }
                   },
                   child: const Text('Import json config')
               ),
@@ -155,13 +211,61 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   decoration: InputDecoration(labelText: 'Users')),
               TextButton(
                   onPressed: () async {
-                    importJsonFile();
+                    FilePickerResult? result = await FilePicker.platform
+                        .pickFiles(
+                        type: FileType.custom,
+                        allowMultiple: false,
+                        allowedExtensions: ['json']
+                    );
+                    if (result != null) {
+                      List<File> pickedFiles = result.files.map((file) => File(file.path!)).toList();
+                      print("Imported files: $pickedFiles");
+                      File file = File(result.files.single.path!);
+                      try{
+                        String contents = await file.readAsString();
+                        List<dynamic> jsonData = json.decode(contents);
+                        String startTime = jsonData[0] ?? '';
+                        usersController.text = startTime;
+                      } catch(e){
+                        print("Error reading file: $e");
+                      }
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "Please select a JSON file",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                      );
+                    }
                   },
                   child: const Text('Import json users')
               ),
               TextButton(
                   onPressed: () async {
-                    importJsonFile();
+                    FilePickerResult? result = await FilePicker.platform
+                        .pickFiles(
+                        type: FileType.custom,
+                        allowMultiple: false,
+                        allowedExtensions: ['json']
+                    );
+                    if (result != null) {
+                      List<File> pickedFiles = result.files.map((file) => File(file.path!)).toList();
+                      print("Imported files: $pickedFiles");
+                      File file = File(result.files.single.path!);
+                      try{
+                        String contents = await file.readAsString();
+                        questions = (json.decode(contents) as List<dynamic>).cast<Map<String, dynamic>>();
+                        print("questions: $questions");
+                        showPreviewDialog(context,questions);
+                      } catch(e){
+                        print("Error reading file: $e");
+                      }
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "Please select a JSON file",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                      );
+                    }
                   },
                   child: const Text('Import json questions')
               ),
@@ -345,19 +449,61 @@ void showLoadingDialog(BuildContext context, String sessionId) {
   );
 }
 
-Future<void> importJsonFile() async {
-    var result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-      allowedExtensions:  ['json'],
-    );
-    if (result != null && result.files.isNotEmpty) {
-      List<File> pickedFiles = result.files.map((file) => File(file.path!)).toList();
-      print("Imported files: $pickedFiles");
-    } else {
-      Fluttertoast.showToast(
-        msg: "Please select a JSON file",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
+void showPreviewDialog(BuildContext context,List<Map<String, dynamic>> questions) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Preview Questions'),
+        content: Container(
+          width: double.maxFinite,
+          child: ListView.builder(
+            itemCount: questions.length,
+            itemBuilder: (BuildContext context, int index) {
+              final question = questions[index];
+              return Card(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Question ${index + 1}: ${question['questionText']}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 8),
+                      Text('Choices:'),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: (question['choices'] as List<dynamic>).map((choice) {
+                          return Text(
+                            '- ${choice['choiceText']} ${choice['correct'] ? '(Correct)' : ''}',
+                            style: TextStyle(
+                              color: choice['correct'] ? Colors.green : Colors.black,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Close'),
+          ),
+        ],
       );
-    }
+    },
+  );
 }
+
+
+
+
