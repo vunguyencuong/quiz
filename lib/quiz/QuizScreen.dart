@@ -40,11 +40,13 @@ class QuizController extends GetxController {
     );
 
     if (response.statusCode == 200) {
+      print("fasfsaf ${response.body}");
       ApiResponse apiResponse = ApiResponse.fromJson(jsonDecode(response.body));
       responseData.value = apiResponse.data.questions;
       updateShuffleOption();
     }
     else{
+      print("fasfsaf error");
       AutoRouter.of(_context).push(const CompletedRoute());
     }
   }
@@ -95,13 +97,11 @@ class QuizController extends GetxController {
 class QuizScreen extends StatelessWidget {
   final QuizController _quizController = Get.put(QuizController());
   final String id;
-  init() {
-    _quizController.api(id);
-  }
 
   QuizScreen({super.key, required this.id});
   @override
   Widget build(BuildContext context) {
+    _quizController.api(id);
     _quizController.setContext(context);
     return Scaffold(
       body: Padding(
