@@ -19,6 +19,8 @@ class QuizController extends GetxController {
   var _secondRemaining = 15.obs;
   var shuffledOptions = <Choice>[].obs;
   var selectedAnswers = <Choice>[].obs;
+  var selectedChoicesByQuestion = <Question, List<Choice>>{}.obs; // Map để lưu các đáp án đã chọn cho mỗi câu hỏi
+  // var configData = <Config>[].obs;
 
   @override
   void onInit() {
@@ -43,6 +45,7 @@ class QuizController extends GetxController {
       print("fasfsaf ${response.body}");
       ApiResponse apiResponse = ApiResponse.fromJson(jsonDecode(response.body));
       responseData.value = apiResponse.data.questions;
+      // configData.value = apiResponse.data.config as List<Config>;
       updateShuffleOption();
     }
     else{
@@ -66,6 +69,8 @@ class QuizController extends GetxController {
 
   void completed() {
     // Navigate to the completed screen
+    print(selectedChoicesByQuestion);
+    AutoRouter.of(_context).push(const CompletedRoute());
   }
 
   void updateShuffleOption() {
@@ -75,13 +80,38 @@ class QuizController extends GetxController {
 
   void selectAnswer(Choice answer) {
     selectedAnswers.add(answer);
+    var currentQuestion = responseData[number.value];
+    if (!selectedChoicesByQuestion.containsKey(currentQuestion)) {
+      selectedChoicesByQuestion[currentQuestion] = [];
+    }
+    selectedChoicesByQuestion[currentQuestion]!.add(answer);
+  }
+
+  void unSelectAnswer(Choice answer){
+    selectedAnswers.remove(answer);
+    var currentQuestion = responseData[number.value];
+    if (selectedChoicesByQuestion.containsKey(currentQuestion)) {
+      selectedChoicesByQuestion[currentQuestion]!.remove(answer);
+    }
   }
 
   bool isAnswerSelected(Choice answer) {
     return selectedAnswers.contains(answer);
   }
 
+  // int calculateRemainingTime() {
+  //   var currentConfig = configData[number.value];
+  //   DateTime startTime = DateTime.parse(currentConfig.startTime);
+  //   int duration = currentConfig.duration;
+  //
+  //   var now = DateTime.now();
+  //   var remainingTime = startTime.add(Duration(seconds: duration)).difference(now).inSeconds;
+  //
+  //   return remainingTime > 0 ? remainingTime : 0;
+  // }
+
   void startTime() {
+    // _secondRemaining.value = calculateRemainingTime();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondRemaining.value > 0) {
         _secondRemaining.value--;
