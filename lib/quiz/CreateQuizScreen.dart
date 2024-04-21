@@ -21,7 +21,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
   final TextEditingController startTimeController = TextEditingController();
   final TextEditingController durationController = TextEditingController();
   final TextEditingController usersController = TextEditingController();
-  var genQrCode = 0;
+  var genQrCode = "";
 
   List pickedFiles = [];
 
@@ -285,18 +285,16 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   );
                   if(quizId.isNotEmpty){
                     setState(() {
-                      genQrCode = 1;
+                      genQrCode = quizId;
                     });
                   }
-                  print("check");
-                  print(genQrCode);
                 },
                 child: const Text('Submit'),
               ),
               SizedBox(height: 10),
               ElevatedButton(
                   onPressed: () async {
-                      if(genQrCode == 1){
+                      if(genQrCode.isNotEmpty){
                         showDialog(
                             context: context,
                             builder: (BuildContext context){
@@ -307,7 +305,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                                     height: 200,
                                     child: Center(
                                       child: QrImageView(
-                                         data: genQrCode.toString(),
+                                         data: "http://35.240.159.251:8080/api/v1/join-quiz/$genQrCode",
                                         size: 200,
                                       ),
                                    ),
@@ -386,7 +384,7 @@ Future<String> createQuiz({
       gravity: ToastGravity.BOTTOM,
     );
     Navigator.pop(context); // Dismiss the dialog
-    return responseBody['quizId'].toString(); // Extract the 'quizId' field
+    return responseBody['data']['id'].toString();
   } else {
     Fluttertoast.showToast(
       msg: "Failed to create quiz ${response.statusCode}",

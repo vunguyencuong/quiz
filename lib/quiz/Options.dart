@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_printer/data/response/ApiResponse.dart';
 
 import 'QuizScreen.dart';
 
 
 class Options extends StatelessWidget {
-  final String options;
+  final Choice options;
   final QuizController controller = Get.find();
 
   Options({Key? key, required this.options}) : super(key: key);
@@ -23,7 +24,7 @@ class Options extends StatelessWidget {
             child: Container(
               height: 48,
               width: 320,
-              margin: const EdgeInsets.symmetric(vertical: 2), // Khoảng cách giữa các câu hỏi
+              margin: const EdgeInsets.symmetric(vertical: 2),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
@@ -39,7 +40,7 @@ class Options extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        options,
+                        options.choiceText,
                         style: TextStyle(fontWeight: FontWeight.bold),
                         maxLines: 2, // Giới hạn số dòng hiển thị
                         overflow: TextOverflow.ellipsis, // Hiển thị dấu "..." khi vượt quá số dòng
