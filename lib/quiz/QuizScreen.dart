@@ -38,7 +38,7 @@ class QuizController extends GetxController {
   }
 
   void setQuizId(int id) {
-   _quizId = id;
+    _quizId = id;
   }
 
   Future<void> api(String id) async {
@@ -62,7 +62,8 @@ class QuizController extends GetxController {
     }
   }
 
-  Future<void> submitQuiz(int quizId, List<Answer> answers) async {
+  Future<void> submitQuiz(
+      {required int quizId, required List<Answer> answers}) async {
     final response = await http.post(
       Uri.parse('http://35.240.159.251:8080/api/v1/join-quiz/submit/$quizId'),
       headers: <String, String>{
@@ -77,8 +78,7 @@ class QuizController extends GetxController {
 
     if (response.statusCode != 200) {
       throw Exception('Failed to submit quiz');
-    }
-    else{
+    } else {
       Fluttertoast.showToast(
           msg: "Submit quiz successfully",
           toastLength: Toast.LENGTH_SHORT,
@@ -86,8 +86,7 @@ class QuizController extends GetxController {
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.green,
           textColor: Colors.white,
-          fontSize: 16.0
-      );
+          fontSize: 16.0);
     }
   }
 
@@ -107,8 +106,8 @@ class QuizController extends GetxController {
   void completed() {
     print(selectedChoicesByQuestion);
     submitQuiz(
-        _quizId,
-        selectedAnswers
+        quizId: _quizId,
+        answers: selectedAnswers
             .map((element) => element.toAnswer(responseData[number.value].id))
             .toList());
     AutoRouter.of(_context).push(const CompletedRoute());

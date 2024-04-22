@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -8,6 +10,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 @RoutePage()
 class CreateQuizScreen extends StatefulWidget {
@@ -24,8 +27,6 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
   var genQrCode = "";
 
   List pickedFiles = [];
-
-
 
   List<Map<String, dynamic>> questions = [
     {
@@ -110,22 +111,22 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   onPressed: () async {
                     FilePickerResult? result = await FilePicker.platform
                         .pickFiles(
-                        type: FileType.custom,
-                        allowMultiple: false,
-                        allowedExtensions: ['json']
-                    );
+                            type: FileType.custom,
+                            allowMultiple: false,
+                            allowedExtensions: ['json']);
                     if (result != null) {
-                      List<File> pickedFiles = result.files.map((file) => File(file.path!)).toList();
+                      List<File> pickedFiles =
+                          result.files.map((file) => File(file.path!)).toList();
                       print("Imported files: $pickedFiles");
                       File file = File(result.files.single.path!);
-                      try{
+                      try {
                         String contents = await file.readAsString();
-                        Map<String,dynamic> jsonData = json.decode(contents);
+                        Map<String, dynamic> jsonData = json.decode(contents);
                         String name = jsonData['name'] ?? '';
                         String description = jsonData['description'] ?? '';
                         nameController.text = name;
                         descriptionController.text = description;
-                      } catch(e){
+                      } catch (e) {
                         print("Error reading file: $e");
                       }
                     } else {
@@ -135,9 +136,8 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                         gravity: ToastGravity.BOTTOM,
                       );
                     }
-                  }, 
-                  child: const Text('Import json quiz')
-              ),
+                  },
+                  child: const Text('Import json quiz')),
               TextField(
                 controller: startTimeController,
                 decoration: InputDecoration(labelText: 'Start Time'),
@@ -176,24 +176,25 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   onPressed: () async {
                     FilePickerResult? result = await FilePicker.platform
                         .pickFiles(
-                        type: FileType.custom,
-                        allowMultiple: false,
-                        allowedExtensions: ['json']
-                    );
+                            type: FileType.custom,
+                            allowMultiple: false,
+                            allowedExtensions: ['json']);
                     if (result != null) {
-                      List<File> pickedFiles = result.files.map((file) => File(file.path!)).toList();
+                      List<File> pickedFiles =
+                          result.files.map((file) => File(file.path!)).toList();
                       print("Imported files: $pickedFiles");
                       File file = File(result.files.single.path!);
-                      try{
+                      try {
                         String contents = await file.readAsString();
-                        Map<String,dynamic> jsonData = json.decode(contents);
-                        String startTime = jsonData['startTime'].toString() ?? '';
+                        Map<String, dynamic> jsonData = json.decode(contents);
+                        String startTime =
+                            jsonData['startTime'].toString() ?? '';
                         String duration = jsonData['duration'].toString() ?? '';
                         print(startTime);
                         print(duration);
                         startTimeController.text = startTime;
                         durationController.text = duration;
-                      } catch(e){
+                      } catch (e) {
                         print("Error reading file: $e");
                       }
                     } else {
@@ -204,8 +205,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                       );
                     }
                   },
-                  child: const Text('Import json config')
-              ),
+                  child: const Text('Import json config')),
               TextField(
                   controller: usersController,
                   decoration: InputDecoration(labelText: 'Users')),
@@ -213,20 +213,20 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   onPressed: () async {
                     FilePickerResult? result = await FilePicker.platform
                         .pickFiles(
-                        type: FileType.custom,
-                        allowMultiple: false,
-                        allowedExtensions: ['json']
-                    );
+                            type: FileType.custom,
+                            allowMultiple: false,
+                            allowedExtensions: ['json']);
                     if (result != null) {
-                      List<File> pickedFiles = result.files.map((file) => File(file.path!)).toList();
+                      List<File> pickedFiles =
+                          result.files.map((file) => File(file.path!)).toList();
                       print("Imported files: $pickedFiles");
                       File file = File(result.files.single.path!);
-                      try{
+                      try {
                         String contents = await file.readAsString();
                         List<dynamic> jsonData = json.decode(contents);
                         String startTime = jsonData[0] ?? '';
                         usersController.text = startTime;
-                      } catch(e){
+                      } catch (e) {
                         print("Error reading file: $e");
                       }
                     } else {
@@ -237,26 +237,26 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                       );
                     }
                   },
-                  child: const Text('Import json users')
-              ),
+                  child: const Text('Import json users')),
               TextButton(
                   onPressed: () async {
                     FilePickerResult? result = await FilePicker.platform
                         .pickFiles(
-                        type: FileType.custom,
-                        allowMultiple: false,
-                        allowedExtensions: ['json']
-                    );
+                            type: FileType.custom,
+                            allowMultiple: false,
+                            allowedExtensions: ['json']);
                     if (result != null) {
-                      List<File> pickedFiles = result.files.map((file) => File(file.path!)).toList();
+                      List<File> pickedFiles =
+                          result.files.map((file) => File(file.path!)).toList();
                       print("Imported files: $pickedFiles");
                       File file = File(result.files.single.path!);
-                      try{
+                      try {
                         String contents = await file.readAsString();
-                        questions = (json.decode(contents) as List<dynamic>).cast<Map<String, dynamic>>();
+                        questions = (json.decode(contents) as List<dynamic>)
+                            .cast<Map<String, dynamic>>();
                         print("questions: $questions");
-                        showPreviewDialog(context,questions);
-                      } catch(e){
+                        showPreviewDialog(context, questions);
+                      } catch (e) {
                         print("Error reading file: $e");
                       }
                     } else {
@@ -267,8 +267,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                       );
                     }
                   },
-                  child: const Text('Import json questions')
-              ),
+                  child: const Text('Import json questions')),
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () async {
@@ -283,7 +282,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                     users: [usersController.text],
                     questions: questions,
                   );
-                  if(quizId.isNotEmpty){
+                  if (quizId.isNotEmpty) {
                     setState(() {
                       genQrCode = quizId;
                     });
@@ -294,35 +293,35 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
               SizedBox(height: 10),
               ElevatedButton(
                   onPressed: () async {
-                      if(genQrCode.isNotEmpty){
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context){
-                              return AlertDialog(
-                                  title: Text('QR Code'),
-                                  content: Container(
-                                    width: 200, // Điều chỉnh kích thước của Container tùy thuộc vào nhu cầu của bạn
-                                    height: 200,
-                                    child: Center(
-                                      child: QrImageView(
-                                         data: "http://35.240.159.251:8080/api/v1/join-quiz/$genQrCode",
-                                        size: 200,
-                                      ),
-                                   ),
+                    if (genQrCode.isNotEmpty) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('QR Code'),
+                              content: Container(
+                                width: 200,
+                                // Điều chỉnh kích thước của Container tùy thuộc vào nhu cầu của bạn
+                                height: 200,
+                                child: Center(
+                                  child: QrImageView(
+                                    data:
+                                        "http://35.240.159.251:8080/api/v1/join-quiz/$genQrCode",
+                                    size: 200,
                                   ),
-                              );
-                            }
-                        );
-                      } else{
-                        Fluttertoast.showToast(
-                          msg: "Failed to gen qr code",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                        );
-                      }
+                                ),
+                              ),
+                            );
+                          });
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "Failed to gen qr code",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                      );
+                    }
                   },
-                  child: const Text("Gen QR Code")
-              )
+                  child: const Text("Gen QR Code"))
             ],
           ),
         ),
@@ -343,17 +342,33 @@ Future<String> createQuiz({
 }) async {
   showLoadingDialog(context, sessionId);
   final String apiUrl =
-      'http://35.197.148.25:8080/api/v1/create-quiz/$sessionId';
+      'http://35.240.189.148:8000/api/v1/create-quiz/$sessionId';
 
-  final response = await http.post(
-    Uri.parse(apiUrl),
-    headers: <String, String>{
-      'accept': '*/*',
-      'username': 'string',
-      'role': 'TEACHER',
-      'Content-Type': 'application/json',
-    },
-    body: jsonEncode(<String, dynamic>{
+  Dio dio = Dio();
+  dio.interceptors.addAll([
+    PrettyDioLogger(
+      requestHeader: true,
+      requestBody: true,
+      responseBody: true,
+      responseHeader: false,
+      error: true,
+      compact: true,
+    ),
+    CurlLoggerDioInterceptor(),
+  ]);
+
+  final response = await dio.post(
+    apiUrl,
+    options: Options(
+      headers: <String, String>{
+        'accept': '*/*',
+        'username': 'viet',
+        'Authorization':
+            'Bearer eyJraWQiOiI2NmFURWJ1RFlSblBxT2UwNnZDbzZrOGh3R3BhRk9ybiIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE3MTM4MDcyNzQsImlhdCI6MTcxMzgwNjM3NSwidXNlcm5hbWUiOiJ2aWV0Iiwicm9sZSI6IlRFQUNIRVIifQ.quvAEdLsJVgfpmiRAWgVbKWx48kRjBFDR2qCamKJOfo',
+        'Content-Type': 'application/json',
+      },
+    ),
+    data: {
       'name': name,
       'description': description,
       'config': {
@@ -362,29 +377,17 @@ Future<String> createQuiz({
       },
       'users': users,
       'questions': questions,
-    }),
+    },
   );
 
-  //print the json
-  print(jsonEncode(<String, dynamic>{
-    'name': name,
-    'description': description,
-    'config': {
-      'startTime': startTime,
-      'duration': duration,
-    },
-    'users': users,
-    'questions': questions,
-  }));
   if (response.statusCode == 200) {
-    final Map<String, dynamic> responseBody = jsonDecode(response.body);
     Fluttertoast.showToast(
       msg: "Quiz created successfully",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
     );
     Navigator.pop(context); // Dismiss the dialog
-    return responseBody['data']['id'].toString();
+    return response.data['data']['id'].toString();
   } else {
     Fluttertoast.showToast(
       msg: "Failed to create quiz ${response.statusCode}",
@@ -398,21 +401,35 @@ Future<String> createQuiz({
 }
 
 Stream<String> getStatus(String sessionId) async* {
+  Dio dio = Dio();
+  dio.interceptors.addAll([
+    PrettyDioLogger(
+      requestHeader: true,
+      requestBody: true,
+      responseBody: true,
+      responseHeader: false,
+      error: true,
+      compact: true,
+    ),
+    CurlLoggerDioInterceptor(),
+  ]);
   while (true) {
-    final response = await http.get(
-      Uri.parse(
-          'http://35.197.148.25:8080/api/v1/create-quiz/status/$sessionId'),
-      headers: <String, String>{
-        'accept': '*/*',
-        'username': "string",
-      },
+    final response = await dio.get(
+      'http://35.240.189.148:8000/api/v1/create-quiz/status/$sessionId',
+      options: Options(
+        headers: <String, String>{
+          'accept': '*/*',
+          'Authorization':
+              'Bearer eyJraWQiOiI2NmFURWJ1RFlSblBxT2UwNnZDbzZrOGh3R3BhRk9ybiIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE3MTM4MDcyNzQsImlhdCI6MTcxMzgwNjM3NSwidXNlcm5hbWUiOiJ2aWV0Iiwicm9sZSI6IlRFQUNIRVIifQ.quvAEdLsJVgfpmiRAWgVbKWx48kRjBFDR2qCamKJOfo',
+          'username': "viet",
+        },
+      ),
     );
-    final Map<String, dynamic> responseBody = jsonDecode(response.body);
+    final Map<String, dynamic> responseBody = response.data;
     yield responseBody['data'] as String;
     await Future.delayed(Duration(seconds: 1));
   }
 }
-
 
 void showLoadingDialog(BuildContext context, String sessionId) {
   showDialog(
@@ -447,7 +464,8 @@ void showLoadingDialog(BuildContext context, String sessionId) {
   );
 }
 
-void showPreviewDialog(BuildContext context,List<Map<String, dynamic>> questions) {
+void showPreviewDialog(
+    BuildContext context, List<Map<String, dynamic>> questions) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -473,11 +491,14 @@ void showPreviewDialog(BuildContext context,List<Map<String, dynamic>> questions
                       Text('Choices:'),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: (question['choices'] as List<dynamic>).map((choice) {
+                        children: (question['choices'] as List<dynamic>)
+                            .map((choice) {
                           return Text(
                             '- ${choice['choiceText']} ${choice['correct'] ? '(Correct)' : ''}',
                             style: TextStyle(
-                              color: choice['correct'] ? Colors.green : Colors.black,
+                              color: choice['correct']
+                                  ? Colors.green
+                                  : Colors.black,
                             ),
                           );
                         }).toList(),
@@ -501,7 +522,3 @@ void showPreviewDialog(BuildContext context,List<Map<String, dynamic>> questions
     },
   );
 }
-
-
-
-
