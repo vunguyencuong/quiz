@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:smart_printer/data/app_database/app_database.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:smart_printer/route/route.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AppDatabase.initDatabase();
+  usePathUrlStrategy();
   runApp(MyApp());
 }
 
