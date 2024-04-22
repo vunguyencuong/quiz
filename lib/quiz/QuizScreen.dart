@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:smart_printer/quiz/Options.dart';
 import 'package:smart_printer/route/route.dart';
+import '../data/Answer.dart';
 import '../data/response/ApiResponse.dart';
 import 'CompleteScreen.dart';
 
@@ -19,7 +20,11 @@ class QuizController extends GetxController {
   var _secondRemaining = 15.obs;
   var shuffledOptions = <Choice>[].obs;
   var selectedAnswers = <Choice>[].obs;
-  var selectedChoicesByQuestion = <Question, List<Choice>>{}.obs; // Map để lưu các đáp án đã chọn cho mỗi câu hỏi
+  var numberOfCorrectAnswers = 0.obs;
+  var numberOfWrongAnswers = 0.obs;
+  var _quizId = -1;
+  var selectedChoicesByQuestion = <Question, List<Choice>>{}
+      .obs; // Map để lưu các đáp án đã chọn cho mỗi câu hỏi
   // var configData = <Config>[].obs;
 
   @override
@@ -30,6 +35,10 @@ class QuizController extends GetxController {
 
   void setContext(BuildContext context) {
     _context = context;
+  }
+
+  void setQuizId(int id) {
+   _quizId = id;
   }
 
   Future<void> api(String id) async {
@@ -47,10 +56,38 @@ class QuizController extends GetxController {
       responseData.value = apiResponse.data.questions;
       // configData.value = apiResponse.data.config as List<Config>;
       updateShuffleOption();
-    }
-    else{
+    } else {
       print("fasfsaf error");
       AutoRouter.of(_context).push(const CompletedRoute());
+    }
+  }
+
+  Future<void> submitQuiz(int quizId, List<Answer> answers) async {
+    final response = await http.post(
+      Uri.parse('http://35.240.159.251:8080/api/v1/join-quiz/submit/$quizId'),
+      headers: <String, String>{
+        'accept': '*/*',
+        'username': 'string',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "choices": answers.map((answer) => answer.toJson()).toList(),
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to submit quiz');
+    }
+    else{
+      Fluttertoast.showToast(
+          msg: "Submit quiz successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
     }
   }
 
@@ -68,13 +105,18 @@ class QuizController extends GetxController {
   }
 
   void completed() {
-    // Navigate to the completed screen
     print(selectedChoicesByQuestion);
+    submitQuiz(
+        _quizId,
+        selectedAnswers
+            .map((element) => element.toAnswer(responseData[number.value].id))
+            .toList());
     AutoRouter.of(_context).push(const CompletedRoute());
   }
 
   void updateShuffleOption() {
-    shuffledOptions.value = List<Choice>.from(responseData[number.value].choices);
+    shuffledOptions.value =
+        List<Choice>.from(responseData[number.value].choices);
     shuffledOptions.shuffle();
   }
 
@@ -87,7 +129,7 @@ class QuizController extends GetxController {
     selectedChoicesByQuestion[currentQuestion]!.add(answer);
   }
 
-  void unSelectAnswer(Choice answer){
+  void unSelectAnswer(Choice answer) {
     selectedAnswers.remove(answer);
     var currentQuestion = responseData[number.value];
     if (selectedChoicesByQuestion.containsKey(currentQuestion)) {
@@ -129,141 +171,138 @@ class QuizScreen extends StatelessWidget {
   final String id;
 
   QuizScreen({super.key, required this.id});
+
   @override
   Widget build(BuildContext context) {
     _quizController.api(id);
     _quizController.setContext(context);
+    _quizController.setQuizId(int.parse(id));
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 421,
-              width: 480,
-              child: Stack(
-                children: [
-                  Container(
-                    height: 240,
-                    width: 480,
-                    decoration: BoxDecoration(
-                      color: Colors.blue[200],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 60,
-                    left: 22,
-                    child: Container(
-                      height: 170,
-                      width: 340,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 421,
+                width: 480,
+                child: Stack(
+                  children: [
+                    Container(
+                      height: 240,
+                      width: 480,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.blue[200],
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                              offset: const Offset(0, 1),
-                              blurRadius: 5,
-                              spreadRadius: 3,
-                              color: const Color(0xff90CAF9)
-                                  .withOpacity(.4)),
-                        ],
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
-                        child: Column(
-                          children: [
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '05',
-                                  style: TextStyle(
-                                      color: Colors.green, fontSize: 20),
-                                ),
-                                Text(
-                                  '07',
-                                  style: TextStyle(
-                                      color: Colors.red, fontSize: 20),
-                                ),
-                              ],
-                            ),
-                            Center(
-                              child: Obx(() => Text(
-                                "Question ${_quizController.number.value + 1}/ ${_quizController.responseData.length}",
-                                style: const TextStyle(
-                                    color: Color(0xff90CAF9)),
-                              )),
-                            ),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            Obx(() => Text(
-                              _quizController.responseData[_quizController.number.value].questionText,
-                              style: const TextStyle(
-                                  color: Colors.black, fontSize: 18),
-                            )
-                            ),
+                    ),
+                    Positioned(
+                      bottom: 60,
+                      left: 22,
+                      child: Container(
+                        height: 170,
+                        width: 340,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                                offset: const Offset(0, 1),
+                                blurRadius: 5,
+                                spreadRadius: 3,
+                                color: const Color(0xff90CAF9).withOpacity(.4)),
                           ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          child: Column(
+                            children: [
+                              Center(
+                                child: Obx(() => Text(
+                                      "Question ${_quizController.number.value + 1}/ ${_quizController.responseData.length}",
+                                      style: const TextStyle(
+                                          color: Color(0xff90CAF9)),
+                                    )),
+                              ),
+                              const SizedBox(
+                                height: 25,
+                              ),
+                              Obx(() => Text(
+                                    _quizController
+                                        .responseData[
+                                            _quizController.number.value]
+                                        .questionText,
+                                    style: const TextStyle(
+                                        color: Colors.black, fontSize: 18),
+                                  )),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    bottom: 210,
-                    left: 140,
-                    child: CircleAvatar(
-                      radius: 42,
-                      backgroundColor: Colors.white,
-                      child: Center(
-                        child: Obx(() => Text(
-                          _quizController._secondRemaining.value.toString(),
-                          style: const TextStyle(
-                              color: Color(0xff90CAF9), fontSize: 25),
-                        )),
+                    Positioned(
+                      bottom: 210,
+                      left: 140,
+                      child: CircleAvatar(
+                        radius: 42,
+                        backgroundColor: Colors.white,
+                        child: Center(
+                          child: Obx(() => Text(
+                                _quizController._secondRemaining.value
+                                    .toString(),
+                                style: const TextStyle(
+                                    color: Color(0xff90CAF9), fontSize: 25),
+                              )),
+                        ),
                       ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Column(
-              children: [
-                Obx(() => (
-                    _quizController.shuffledOptions.isNotEmpty
-                )
-                    ? Column(
-                  children: _quizController.shuffledOptions.map((option) {
-                    return Options(options: option);
-                  }).toList(),
-                )
-                    : Container()),
-              ],
-            ),
-            const SizedBox(height: 30,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff90CAF9),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 5
-                ), onPressed: () {
-                _quizController.nextQuestion();
-              },
-                child: Container(
-                  alignment: Alignment.center,
-                  child: const Text('Next', style: TextStyle(
-                      color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold
-                  ),),
+                    )
+                  ],
                 ),
               ),
-            )
-          ],
+              const SizedBox(height: 10),
+              Column(
+                children: [
+                  Obx(() => (_quizController.shuffledOptions.isNotEmpty)
+                      ? Column(
+                          children:
+                              _quizController.shuffledOptions.map((option) {
+                            return Options(options: option);
+                          }).toList(),
+                        )
+                      : Container()),
+                ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff90CAF9),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 5),
+                  onPressed: () {
+                    _quizController.nextQuestion();
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Next',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

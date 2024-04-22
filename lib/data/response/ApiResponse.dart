@@ -1,3 +1,5 @@
+import 'package:smart_printer/data/Answer.dart';
+
 class ApiResponse {
   final Status status;
   final Data data;
@@ -96,4 +98,10 @@ class Choice {
       order: json['order'],
     );
   }
+
+  //mapper to answer
+  Answer toAnswer(int questionId) {
+    return Answer(questionId: questionId, choiceId: id);
+  }
+
 }
