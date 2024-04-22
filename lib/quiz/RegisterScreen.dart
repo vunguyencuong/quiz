@@ -119,7 +119,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
   Future<Map<String, dynamic>> registerAccount(String username, String password,
       String fullName) async {
-    final String apiUrl = 'http://35.197.143.10:8080/api/v1/auth/register';
+    final String apiUrl = 'http://35.240.189.148:8000/api/v1/auth/register';
 
     Dio dio = Dio();
     dio.interceptors.addAll([
