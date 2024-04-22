@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_printer/main.dart';
 import 'package:uuid/uuid.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
@@ -25,7 +27,8 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
   final TextEditingController durationController = TextEditingController();
   final TextEditingController usersController = TextEditingController();
   var genQrCode = "";
-
+  var username = prefs.getString('username');
+  var token = prefs.getString('accessToken');
   List pickedFiles = [];
 
   List<Map<String, dynamic>> questions = [
@@ -275,6 +278,8 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   final quizId = await createQuiz(
                     sessionId: sessionId,
                     context: context,
+                    username: username.toString(),
+                    token: token.toString(),
                     name: nameController.text,
                     description: descriptionController.text,
                     startTime: startTimeController.text,
@@ -332,6 +337,8 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
 
 Future<String> createQuiz({
   required String sessionId,
+  required String username,
+  required String token,
   required BuildContext context,
   required String name,
   required String description,
@@ -340,7 +347,7 @@ Future<String> createQuiz({
   required List<String> users,
   required List<Map<String, dynamic>> questions,
 }) async {
-  showLoadingDialog(context, sessionId);
+  showLoadingDialog(context, sessionId, username, token);
   final String apiUrl =
       'http://35.240.189.148:8000/api/v1/create-quiz/$sessionId';
 
@@ -361,11 +368,7 @@ Future<String> createQuiz({
     apiUrl,
     options: Options(
       headers: <String, String>{
-        'accept': '*/*',
-        'username': 'viet',
-        'Authorization':
-            'Bearer eyJraWQiOiI2NmFURWJ1RFlSblBxT2UwNnZDbzZrOGh3R3BhRk9ybiIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE3MTM4MDcyNzQsImlhdCI6MTcxMzgwNjM3NSwidXNlcm5hbWUiOiJ2aWV0Iiwicm9sZSI6IlRFQUNIRVIifQ.quvAEdLsJVgfpmiRAWgVbKWx48kRjBFDR2qCamKJOfo',
-        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
       },
     ),
     data: {
@@ -400,7 +403,8 @@ Future<String> createQuiz({
   }
 }
 
-Stream<String> getStatus(String sessionId) async* {
+Stream<String> getStatus(
+    String sessionId, String username, String token) async* {
   Dio dio = Dio();
   dio.interceptors.addAll([
     PrettyDioLogger(
@@ -418,10 +422,7 @@ Stream<String> getStatus(String sessionId) async* {
       'http://35.240.189.148:8000/api/v1/create-quiz/status/$sessionId',
       options: Options(
         headers: <String, String>{
-          'accept': '*/*',
-          'Authorization':
-              'Bearer eyJraWQiOiI2NmFURWJ1RFlSblBxT2UwNnZDbzZrOGh3R3BhRk9ybiIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE3MTM4MDcyNzQsImlhdCI6MTcxMzgwNjM3NSwidXNlcm5hbWUiOiJ2aWV0Iiwicm9sZSI6IlRFQUNIRVIifQ.quvAEdLsJVgfpmiRAWgVbKWx48kRjBFDR2qCamKJOfo',
-          'username': "viet",
+          'Authorization': 'Bearer $token',
         },
       ),
     );
@@ -431,7 +432,8 @@ Stream<String> getStatus(String sessionId) async* {
   }
 }
 
-void showLoadingDialog(BuildContext context, String sessionId) {
+void showLoadingDialog(
+    BuildContext context, String sessionId, String username, String token) {
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -445,7 +447,7 @@ void showLoadingDialog(BuildContext context, String sessionId) {
               CircularProgressIndicator(),
               SizedBox(height: 20),
               StreamBuilder<String>(
-                stream: getStatus(sessionId),
+                stream: getStatus(sessionId, username, token),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Text('Loading...');

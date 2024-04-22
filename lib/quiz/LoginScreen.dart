@@ -1,13 +1,19 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:smart_printer/main.dart';
 
 import '../route/route.dart';
+
+import 'package:dio/dio.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthController extends GetxController {
   var isAdmin = false.obs; // Mặc định là false, nghĩa là không phải admin
 }
-
 
 @RoutePage()
 class LoginScreen extends StatelessWidget {
@@ -37,30 +43,31 @@ class _LoginFormState extends State<LoginForm> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _login() {
+  void _login() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
-    print('Username: $username');
-    print('Password: $password');
-
-    if (username.contains("admin")) {
-      widget._authController.isAdmin.value = true; // Đặt isAdmin thành true nếu là admin
-    } else {
-      widget._authController.isAdmin.value = false; // Đặt isAdmin thành false nếu không phải admin
+    try {
+      await login(username, password);
+      if (prefs.getString('role') == 'TEACHER') {
+        widget._authController.isAdmin.value = true;
+      } else {
+        widget._authController.isAdmin.value = false;
+      }
+      Fluttertoast.showToast(
+        msg: "Login success",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+      _clearFields();
+      AutoRouter.of(context).push(const HomeQuizRoute());
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Failed to login",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
     }
-    _clearFields();
-    AutoRouter.of(context).push(const HomeQuizRoute());
-
-  }
-
-  void _register() {
-    AutoRouter.of(context).push(const RegisterRoute());
-  }
-
-  void _clearFields() {
-    _usernameController.clear();
-    _passwordController.clear();
   }
 
   @override
@@ -97,9 +104,7 @@ class _LoginFormState extends State<LoginForm> {
                 child: const Text('Login'),
               ),
               ElevatedButton(
-                  onPressed: _register,
-                  child: const Text('Register')
-              ),
+                  onPressed:_register , child: const Text('Register')),
             ],
           )
         ],
@@ -107,10 +112,60 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
+
+  void _register() {
+    AutoRouter.of(context).push(const RegisterRoute());
+  }
+
+  void _clearFields() {
+    _usernameController.clear();
+    _passwordController.clear();
+  }
+
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> login(String username, String password) async {
+    final String apiUrl = 'http://35.197.143.10:8080/api/v1/auth/login';
+
+    Dio dio = Dio();
+    dio.interceptors.addAll([
+      PrettyDioLogger(
+        requestHeader: true,
+        requestBody: true,
+        responseBody: true,
+        responseHeader: false,
+        error: true,
+        compact: true,
+      ),
+      CurlLoggerDioInterceptor(),
+    ]);
+
+    final response = await dio.post(
+      apiUrl,
+      options: Options(
+        headers: <String, String>{
+          'accept': '*/*',
+          'Content-Type': 'application/json',
+        },
+      ),
+      data: {
+        'username': username,
+        'password': password,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('username', response.data['data']['username']);
+      prefs.setString('role', response.data['data']['role']);
+      prefs.setString('accessToken', response.data['data']['accessToken']);
+    } else {
+      throw Exception('Failed to login');
+    }
   }
 }
