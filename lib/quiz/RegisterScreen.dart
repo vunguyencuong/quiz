@@ -1,8 +1,11 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../route/route.dart';
-
+import 'package:dio/dio.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 
 @RoutePage()
@@ -38,8 +41,33 @@ class _RegisterFormState extends State<RegisterForm> {
     // For now, just clear the fields after registration attempt
     _usernameController.clear();
     _passwordController.clear();
-
-    AutoRouter.of(context).push(const LoginRoute());
+    // int code = registerAccount(username, password, username);
+    //return response in a varable then push if 200
+    registerAccount(username, password, username).then((value) {
+      print(value);
+      if (value['status']['code'] == "success") {
+        Fluttertoast.showToast(
+            msg: "Register success",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+        AutoRouter.of(context).push(const LoginRoute());
+      } else {
+        Fluttertoast.showToast(
+            msg: "Register failed",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+      }
+    });
   }
 
   @override
@@ -87,5 +115,44 @@ class _RegisterFormState extends State<RegisterForm> {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<Map<String, dynamic>> registerAccount(String username, String password,
+      String fullName) async {
+    final String apiUrl = 'http://35.240.189.148:8000/api/v1/auth/register';
+
+    Dio dio = Dio();
+    dio.interceptors.addAll([
+      PrettyDioLogger(
+        requestHeader: true,
+        requestBody: true,
+        responseBody: true,
+        responseHeader: false,
+        error: true,
+        compact: true,
+      ),
+      CurlLoggerDioInterceptor(),
+    ]);
+
+    final response = await dio.post(
+      apiUrl,
+      options: Options(
+        headers: <String, String>{
+          'accept': '*/*',
+          'Content-Type': 'application/json',
+        },
+      ),
+      data: {
+        'username': username,
+        'password': password,
+        'fullName': fullName,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+      throw Exception('Failed to register account');
+    }
   }
 }
