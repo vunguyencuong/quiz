@@ -5,11 +5,11 @@ import 'package:smart_printer/data/response/ApiResponse.dart';
 import 'QuizScreen.dart';
 
 
-class Options extends StatelessWidget {
+class QuestionOption extends StatelessWidget {
   final Choice options;
   final QuizController controller = Get.find();
   late RxBool isSelected;
-  Options({Key? key, required this.options}) : super(key: key){
+  QuestionOption({Key? key, required this.options}) : super(key: key){
     isSelected = RxBool(controller.selectedAnswers.contains(options));
   }
 
