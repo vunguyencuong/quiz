@@ -49,10 +49,9 @@ dependencies:
   curl_logger_dio_interceptor: ^1.0.0
   shared_preferences: ^2.0.8
   dio: ^5.4.3
+  intl: ^0.17.0
   fluttertoast: ^8.0.8
   file_picker: ^8.0.1
-  intl: ^0.17.0
-
   open_file: ^3.3.2
 dev_dependencies:
   flutter_test:

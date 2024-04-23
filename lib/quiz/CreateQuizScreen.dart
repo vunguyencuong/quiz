@@ -170,7 +170,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                       );
                       startTimeController.text =
                           DateFormat('yyyy-MM-dd HH:mm:ss')
-                              .format(finalDateTime.toUtc());
+                              .format(finalDateTime);
                       mPickedDate = finalDateTime;
                     }
                   }
@@ -340,7 +340,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                     name: nameController.text,
                     description: descriptionController.text,
                     startTime: mPickedDate.toUtc().toIso8601String(),
-                    duration: int.parse(durationController.text),
+                    duration: int.parse(durationController.text)*60000,
                     users: [usersController.text],
                     questions: questions,
                   );

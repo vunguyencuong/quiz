@@ -104,13 +104,14 @@ class _LoginFormState extends State<LoginForm> {
                 child: const Text('Login'),
               ),
               ElevatedButton(
-                  onPressed: _register, child: const Text('Register')),
+                  onPressed:_register , child: const Text('Register')),
             ],
           )
         ],
       ),
     );
   }
+
 
   void _register() {
     AutoRouter.of(context).push(const RegisterRoute());
@@ -159,9 +160,7 @@ class _LoginFormState extends State<LoginForm> {
     );
 
     if (response.statusCode == 200) {
-      prefs.remove('username');
-      prefs.remove('role');
-      prefs.remove('accessToken');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('username', response.data['data']['username']);
       prefs.setString('role', response.data['data']['role']);
       prefs.setString('accessToken', response.data['data']['accessToken']);

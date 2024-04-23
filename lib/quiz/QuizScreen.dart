@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:smart_printer/main.dart';
 import 'package:smart_printer/quiz/QuestionOption.dart';
 import 'package:smart_printer/route/route.dart';
+import 'package:uuid/uuid.dart';
 import '../data/Answer.dart';
 import '../data/response/ApiResponse.dart';
 
@@ -57,9 +58,9 @@ class QuizController extends GetxController {
     _quizId = id;
   }
 
-  Future<void> api(String id) async {
+  Future<void> api(String id, String requestId) async {
     final response = await dio.get(
-      'http://35.240.189.148:8000/api/v1/join-quiz/$id',
+      'http://35.240.189.148:8000/api/v1/join-quiz/$id/$requestId',
       options: Options(
         headers: <String, String>{
           'Authorization': 'Bearer ${prefs.getString('accessToken')}',
@@ -164,8 +165,9 @@ class QuizScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     _quizController.setContext(context);
     _quizController.setQuizId(int.parse(id));
+    final requestId = Uuid().v4();
     return FutureBuilder(
-        future: _quizController.api(id),
+        future: _quizController.api(id,requestId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
