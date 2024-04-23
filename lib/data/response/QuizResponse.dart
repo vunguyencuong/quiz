@@ -1,13 +1,13 @@
 import 'package:smart_printer/data/Answer.dart';
 
-class ApiResponse {
+class QuizResponse {
   final Status status;
   final Data data;
 
-  ApiResponse({required this.status, required this.data});
+  QuizResponse({required this.status, required this.data});
 
-  factory ApiResponse.fromJson(Map<String, dynamic> json) {
-    return ApiResponse(
+  factory QuizResponse.fromJson(Map<String, dynamic> json) {
+    return QuizResponse(
       status: Status.fromJson(json['status']),
       data: Data.fromJson(json['data']),
     );

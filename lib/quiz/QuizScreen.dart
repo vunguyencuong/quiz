@@ -13,7 +13,8 @@ import 'package:smart_printer/quiz/QuestionOption.dart';
 import 'package:smart_printer/route/route.dart';
 import 'package:uuid/uuid.dart';
 import '../data/Answer.dart';
-import '../data/response/ApiResponse.dart';
+import '../data/response/QuizResponse.dart';
+import '../data/response/ResultResponse.dart';
 
 
 class QuizController extends GetxController {
@@ -32,7 +33,7 @@ class QuizController extends GetxController {
   var selectedChoicesByQuestion = <Question, List<Choice>>{}
       .obs; // Map để lưu các đáp án đã chọn cho mỗi câu hỏi
   // var configData = <Config>[].obs;
-
+  late ResultResponse resultResponse;
   @override
   void onInit() {
     super.onInit();
@@ -68,7 +69,7 @@ class QuizController extends GetxController {
     );
 
     if (response.statusCode == 200) {
-      final apiResponse = ApiResponse.fromJson(response.data);
+      final apiResponse = QuizResponse.fromJson(response.data);
       questions.value = apiResponse.data.questions;
       config.value = apiResponse.data.config;
       startTime();
@@ -83,7 +84,6 @@ class QuizController extends GetxController {
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16.0);
-      AutoRouter.of(_context).push(const CompletedRoute());
     }
     else {
       Fluttertoast.showToast(
@@ -94,7 +94,6 @@ class QuizController extends GetxController {
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16.0);
-      AutoRouter.of(_context).push(const CompletedRoute());
     }
   }
 
@@ -118,6 +117,7 @@ class QuizController extends GetxController {
     throw Exception('Failed to submit quiz');
   } else {
     Navigator.of(_context).pop();
+    resultResponse = ResultResponse.fromJson(response.data);
     Fluttertoast.showToast(
         msg: "Submit quiz successfully",
         toastLength: Toast.LENGTH_SHORT,
@@ -127,7 +127,7 @@ class QuizController extends GetxController {
         textColor: Colors.white,
         fontSize: 16.0)
     .then((_) {
-      AutoRouter.of(_context).push(const CompletedRoute());
+      AutoRouter.of(_context).push(CompletedRoute(resultResponse: resultResponse));
     });
   }
 }

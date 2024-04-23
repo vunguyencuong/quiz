@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
+import '../data/response/ResultResponse.dart';
+
 
 
 class Participant {
@@ -12,7 +14,8 @@ class Participant {
 
 @RoutePage()
 class CompletedScreen extends StatelessWidget {
-  CompletedScreen({super.key});
+  final ResultResponse result;
+  CompletedScreen({super.key, required this.result});
   List<Participant> participants = [
     Participant('Alice', 95),
     Participant('Bob', 85),
@@ -25,8 +28,15 @@ class CompletedScreen extends StatelessWidget {
     Participant('Ian', 50),
     Participant('Julia', 45),
   ];
+
   @override
   Widget build(BuildContext context) {
+    int numberOfCorrectAnswers = result.data.questions.where((question) => question.choices.any((choice) => choice.correct)).length;
+    int numberOfQuestions = result.data.questions.length;
+    int numberOfIncorrectAnswers = numberOfQuestions - numberOfCorrectAnswers;
+    int score = result.data.score;
+    List<ResultQuestion> questions = result.data.questions;
+    double completion = score / numberOfQuestions * 100;
     return Scaffold(
       body: Column(
         children: [
@@ -59,7 +69,7 @@ class CompletedScreen extends StatelessWidget {
                               ),),
                               RichText(
                                   text: TextSpan(
-                                      text: '100', style: TextStyle(
+                                      text: score.toString() , style: TextStyle(
                                       fontSize: 20, fontWeight: FontWeight.bold,color: Color(0xff90CAF9)
                                   ),
                                       children: [
@@ -119,7 +129,7 @@ class CompletedScreen extends StatelessWidget {
                                                 color: Color(0xff90CAF9)
                                             ),
                                           ),
-                                          Text('100%', style: TextStyle(
+                                          Text(completion.toString(), style: TextStyle(
                                               fontWeight: FontWeight.w500,fontSize: 20,
                                               color: Color(0xff90CAF9)
                                           ),)
@@ -144,7 +154,7 @@ class CompletedScreen extends StatelessWidget {
                                                 color: Color(0xff90CAF9)
                                             ),
                                           ),
-                                          Text('10', style: TextStyle(
+                                          Text(numberOfQuestions.toString(), style: TextStyle(
                                               fontWeight: FontWeight.w500,fontSize: 20,
                                               color: Color(0xff90CAF9)
                                           ),)
@@ -176,7 +186,7 @@ class CompletedScreen extends StatelessWidget {
                                                 color: Colors.green
                                             ),
                                           ),
-                                          Text(' 07', style: TextStyle(
+                                          Text(numberOfCorrectAnswers.toString(), style: TextStyle(
                                               fontWeight: FontWeight.w500,fontSize: 20,
                                               color: Colors.green
                                           ),)
@@ -202,7 +212,7 @@ class CompletedScreen extends StatelessWidget {
                                                   color: Colors.red
                                               ),
                                             ),
-                                            Text(' 03', style: TextStyle(
+                                            Text(numberOfIncorrectAnswers.toString(), style: TextStyle(
                                                 fontWeight: FontWeight.w500,fontSize: 20,
                                                 color: Colors.red
                                             ),)
@@ -225,19 +235,19 @@ class CompletedScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              itemCount: participants.length,
-              itemBuilder: (context, index) {
-                final participant = participants[index];
-                return ListTile(
-                  leading: Text('${index + 1}.'),
-                  title: Text(participant.name),
-                  trailing: Text('${participant.score} pts'),
-                );
-              },
-            ),
-          ),
+          // Expanded(
+          //   child: ListView.builder(
+          //     itemCount: questions.length,
+          //     itemBuilder: (context, index) {
+          //       final participant = questions[index];
+          //       return ListTile(
+          //         leading: Text('${index + 1}.'),
+          //         title: Text(participant.),
+          //         trailing: Text('${participant.score} pts'),
+          //       );
+          //     },
+          //   ),
+          // ),
         ],
       ),
     );
