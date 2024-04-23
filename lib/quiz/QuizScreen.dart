@@ -10,11 +10,12 @@ import 'package:smart_printer/quiz/Options.dart';
 import 'package:smart_printer/route/route.dart';
 import '../data/Answer.dart';
 import '../data/response/ApiResponse.dart';
-import 'CompleteScreen.dart';
+
 
 class QuizController extends GetxController {
   late BuildContext _context;
   var responseData = List<Question>.empty(growable: true).obs;
+  var responseConfig = List<Config>.empty(growable: true).obs;
   var number = 0.obs;
   late Timer _timer;
   var _secondRemaining = 15.obs;
@@ -25,7 +26,6 @@ class QuizController extends GetxController {
   var _quizId = -1;
   var selectedChoicesByQuestion = <Question, List<Choice>>{}
       .obs; // Map để lưu các đáp án đã chọn cho mỗi câu hỏi
-  // var configData = <Config>[].obs;
 
   @override
   void onInit() {
@@ -54,7 +54,8 @@ class QuizController extends GetxController {
       print("fasfsaf ${response.body}");
       ApiResponse apiResponse = ApiResponse.fromJson(jsonDecode(response.body));
       responseData.value = apiResponse.data.questions;
-      // configData.value = apiResponse.data.config as List<Config>;
+      responseConfig.value = [apiResponse.data.config as Config];
+      print(responseConfig.value);
       updateShuffleOption();
     } else {
       print("fasfsaf error");
@@ -91,15 +92,12 @@ class QuizController extends GetxController {
   }
 
   void nextQuestion() {
-    _timer.cancel();
     if (number.value == responseData.length - 1) {
       completed();
       number.value = 0;
     } else {
       number.value++;
-      _secondRemaining.value = 15;
       updateShuffleOption();
-      startTime();
     }
   }
 
@@ -141,7 +139,7 @@ class QuizController extends GetxController {
   }
 
   // int calculateRemainingTime() {
-  //   var currentConfig = configData[number.value];
+  //   var currentConfig = responseConfig[0];
   //   DateTime startTime = DateTime.parse(currentConfig.startTime);
   //   int duration = currentConfig.duration;
   //
@@ -217,11 +215,16 @@ class QuizScreen extends StatelessWidget {
                           child: Column(
                             children: [
                               Center(
-                                child: Obx(() => Text(
-                                      "Question ${_quizController.number.value + 1}/ ${_quizController.responseData.length}",
-                                      style: const TextStyle(
-                                          color: Color(0xff90CAF9)),
-                                    )),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 20.0), // Điều chỉnh giá trị top tùy ý
+                                  child: Obx(() => Text(
+                                    "Question ${_quizController.number.value + 1}/ ${_quizController.responseData.length}",
+                                    style: const TextStyle(
+                                      color: Color(0xff90CAF9),
+                                    ),
+                                  )),
+                                ),
+
                               ),
                               const SizedBox(
                                 height: 25,

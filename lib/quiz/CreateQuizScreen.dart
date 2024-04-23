@@ -153,9 +153,22 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                     lastDate: DateTime(2100),
                   );
                   if (pickedDate != null) {
-                    // Format the date-time string to include an offset from UTC/Greenwich
-                    startTimeController.text =
-                        "${pickedDate.toUtc().toIso8601String()}";
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                    if (pickedTime != null) {
+                      final pickedDateTime = DateTime(
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+                      // Format pickedDateTime to desired format
+                      // final formattedDateTime = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(pickedDateTime);
+                      startTimeController.text = pickedDateTime.toUtc().toIso8601String();
+                    }
                   }
                 },
               ),
@@ -170,7 +183,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   );
                   if (pickedTime != null) {
                     final durationInMinutes =
-                        pickedTime.hour * 60 + pickedTime.minute;
+                        pickedTime.hour * 36000 + pickedTime.minute*600;
                     durationController.text = durationInMinutes.toString();
                   }
                 },
