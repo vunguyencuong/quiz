@@ -11,19 +11,17 @@ import 'package:intl/intl.dart';
 import 'package:smart_printer/main.dart';
 import 'package:smart_printer/quiz/QuestionOption.dart';
 import 'package:smart_printer/route/route.dart';
+import 'package:uuid/uuid.dart';
 import '../data/Answer.dart';
 import '../data/response/ApiResponse.dart';
 
-
-import '../data/Answer.dart';
-import '../data/response/ApiResponse.dart';
-import 'CompleteScreen.dart';
 
 class QuizController extends GetxController {
   late BuildContext _context;
   var questions = List<Question>.empty(growable: true).obs;
   var config = Config(id: 0, startTime: '', duration: 0).obs;
   var number = 0.obs;
+  var uuID = Uuid().v4();
   late Timer _timer;
   var _secondRemaining = 15.obs;
   var shuffledOptions = <Choice>[].obs;
@@ -38,11 +36,10 @@ class QuizController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    startTime();
   }
 
   void startTime() {
-    _secondRemaining.value = config.value.duration * 60;
+    _secondRemaining.value = config.value.duration ~/ 1000;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondRemaining.value == 0) {
         nextQuestion();
@@ -62,7 +59,7 @@ class QuizController extends GetxController {
 
   Future<void> api(String id) async {
     final response = await dio.get(
-      'http://35.240.189.148:8000/api/v1/join-quiz/$id',
+      'http://35.240.189.148:8000/api/v1/join-quiz/$id/$uuID',
       options: Options(
         headers: <String, String>{
           'Authorization': 'Bearer ${prefs.getString('accessToken')}',
@@ -74,39 +71,66 @@ class QuizController extends GetxController {
       final apiResponse = ApiResponse.fromJson(response.data);
       questions.value = apiResponse.data.questions;
       config.value = apiResponse.data.config;
+      startTime();
       updateShuffleOption();
-    } else {
+    }
+    else if(response.statusCode == 403){
+      Fluttertoast.showToast(
+          msg: "You have already submitted this quiz or the quiz has expired",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      AutoRouter.of(_context).push(const CompletedRoute());
+    }
+    else {
+      Fluttertoast.showToast(
+          msg: "Failed to load quiz",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
       AutoRouter.of(_context).push(const CompletedRoute());
     }
   }
 
   Future<void> submitQuiz(
-      {required int quizId, required List<Answer> answers}) async {
-    final response = await dio.post(
-      'http://35.240.189.148:8000/api/v1/join-quiz/submit/$quizId',
-      options: Options(
-        headers: <String, String>{
-          'Authorization': 'Bearer ${prefs.getString('accessToken')}',
-        },
-      ),
-      data: {
-        "choices": answers.map((answer) => answer.toJson()).toList(),
-      },
-    );
+    {required int quizId, required List<Answer> answers}) async {
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to submit quiz');
-    } else {
-      Fluttertoast.showToast(
-          msg: "Submit quiz successfully",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0);
-    }
+  showSubmitLoadingDialog(_context, uuID, prefs.getString('username')!, prefs.getString('accessToken')!);
+
+  final response = await dio.post(
+    'http://35.240.189.148:8000/api/v1/join-quiz/submit/$quizId/$uuID',
+    options: Options(
+      headers: <String, String>{
+        'Authorization': 'Bearer ${prefs.getString('accessToken')}',
+      },
+    ),
+    data: {
+      "choices": answers.map((answer) => answer.toJson()).toList(),
+    },
+  );
+  if (response.statusCode != 200) {
+    throw Exception('Failed to submit quiz');
+  } else {
+    Navigator.of(_context).pop();
+    Fluttertoast.showToast(
+        msg: "Submit quiz successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0)
+    .then((_) {
+      AutoRouter.of(_context).push(const CompletedRoute());
+    });
   }
+}
 
   void nextQuestion() {
     _timer.cancel();
@@ -126,7 +150,6 @@ class QuizController extends GetxController {
         answers: selectedAnswers
             .map((element) => element.toAnswer(questions[number.value].id))
             .toList());
-    AutoRouter.of(_context).push(const CompletedRoute());
   }
 
   void updateShuffleOption() {
@@ -314,4 +337,57 @@ class QuizScreen extends StatelessWidget {
           }
         });
   }
+
+}
+
+
+Stream<String> getSubmitStatus(
+    String sessionId, String username, String token) async* {
+  while (true) {
+    final response = await dio.get(
+      'http://35.240.189.148:8000/api/v1/join-quiz/status/$sessionId',
+      options: Options(
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+        },
+      ),
+    );
+    final Map<String, dynamic> responseBody = response.data;
+    yield responseBody['data'] as String;
+    await Future.delayed(Duration(seconds: 1));
+  }
+}
+
+void showSubmitLoadingDialog(
+    BuildContext context, String sessionId, String username, String token) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 20),
+              StreamBuilder<String>(
+                stream: getSubmitStatus(sessionId, username, token),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Text('Loading...');
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return Text('Status: ${snapshot.data}');
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
