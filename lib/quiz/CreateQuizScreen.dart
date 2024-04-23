@@ -13,6 +13,7 @@ import 'package:smart_printer/main.dart';
 import 'package:uuid/uuid.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:intl/intl.dart';
 
 @RoutePage()
 class CreateQuizScreen extends StatefulWidget {
@@ -26,9 +27,11 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
   final TextEditingController startTimeController = TextEditingController();
   final TextEditingController durationController = TextEditingController();
   final TextEditingController usersController = TextEditingController();
+
   var genQrCode = "";
   var username = prefs.getString('username');
   var token = prefs.getString('accessToken');
+  DateTime mPickedDate = DateTime.now();
   List pickedFiles = [];
 
   List<Map<String, dynamic>> questions = [
@@ -146,16 +149,30 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                 decoration: InputDecoration(labelText: 'Start Time'),
                 readOnly: true, // make it uneditable by user
                 onTap: () async {
-                  final DateTime? pickedDate = await showDatePicker(
+                  DateTime? pickedDate = await showDatePicker(
                     context: context,
                     initialDate: DateTime.now(),
                     firstDate: DateTime(2000),
                     lastDate: DateTime(2100),
                   );
                   if (pickedDate != null) {
-                    // Format the date-time string to include an offset from UTC/Greenwich
-                    startTimeController.text =
-                        "${pickedDate.toUtc().toIso8601String()}";
+                    TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                    if (pickedTime != null) {
+                      DateTime finalDateTime = DateTime(
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+                      startTimeController.text =
+                          DateFormat('yyyy-MM-dd HH:mm:ss')
+                              .format(finalDateTime.toUtc());
+                      mPickedDate = finalDateTime;
+                    }
                   }
                 },
               ),
@@ -164,14 +181,54 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                 decoration: InputDecoration(labelText: 'Duration'),
                 readOnly: true, // make it uneditable by user
                 onTap: () async {
-                  final TimeOfDay? pickedTime = await showTimePicker(
+                  int? duration = await showDialog<int>(
                     context: context,
-                    initialTime: TimeOfDay.now(),
+                    builder: (BuildContext context) {
+                      return SimpleDialog(
+                        title: const Text('Select Duration'),
+                        children: [
+                          SimpleDialogOption(
+                            onPressed: () {
+                              Navigator.pop(context, 5);
+                            },
+                            child: const Text('5 minutes'),
+                          ),
+                          SimpleDialogOption(
+                            onPressed: () {
+                              Navigator.pop(context, 10);
+                            },
+                            child: const Text('10 minutes'),
+                          ),
+                          SimpleDialogOption(
+                            onPressed: () {
+                              Navigator.pop(context, 15);
+                            },
+                            child: const Text('15 minutes'),
+                          ),
+                          SimpleDialogOption(
+                            onPressed: () {
+                              Navigator.pop(context, 20);
+                            },
+                            child: const Text('20 minutes'),
+                          ),
+                          SimpleDialogOption(
+                            onPressed: () {
+                              Navigator.pop(context, 25);
+                            },
+                            child: const Text('25 minutes'),
+                          ),
+                          SimpleDialogOption(
+                            onPressed: () {
+                              Navigator.pop(context, 30);
+                            },
+                            child: const Text('30 minutes'),
+                          ),
+                        ],
+                      );
+                    },
                   );
-                  if (pickedTime != null) {
-                    final durationInMinutes =
-                        pickedTime.hour * 60 + pickedTime.minute;
-                    durationController.text = durationInMinutes.toString();
+                  if (duration != null) {
+                    durationController.text = duration.toString();
                   }
                 },
               ),
@@ -282,7 +339,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                     token: token.toString(),
                     name: nameController.text,
                     description: descriptionController.text,
-                    startTime: startTimeController.text,
+                    startTime: mPickedDate.toUtc().toIso8601String(),
                     duration: int.parse(durationController.text),
                     users: [usersController.text],
                     questions: questions,
