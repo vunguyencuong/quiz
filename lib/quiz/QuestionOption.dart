@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:smart_printer/data/response/ApiResponse.dart';
+import 'package:smart_printer/data/response/QuizResponse.dart';
 
 import 'QuizScreen.dart';
 

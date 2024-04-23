@@ -12,13 +12,13 @@ part of 'route.dart';
 abstract class _$AppRouter extends RootStackRouter {
   // ignore: unused_element
   _$AppRouter({super.navigatorKey});
-
   @override
   final Map<String, PageFactory> pagesMap = {
     CompletedRoute.name: (routeData) {
+      final args = routeData.argsAs<CompletedRouteArgs>();
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child:  CompletedScreen(),
+        child: CompletedScreen(result: args.resultResponse,),
       );
     },
     CreateQuizRoute.name: (routeData) {
@@ -97,17 +97,18 @@ abstract class _$AppRouter extends RootStackRouter {
 
 /// generated route for
 /// [CompletedScreen]
-class CompletedRoute extends PageRouteInfo<void> {
-  const CompletedRoute({List<PageRouteInfo>? children})
+class CompletedRoute extends PageRouteInfo<CompletedRouteArgs> {
+  CompletedRoute({required ResultResponse resultResponse})
       : super(
           CompletedRoute.name,
-          initialChildren: children,
+          args: CompletedRouteArgs(resultResponse: resultResponse),
         );
 
   static const String name = 'CompletedRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
+
 
 /// generated route for
 /// [CreateQuizScreen]
@@ -264,6 +265,7 @@ class LoginRoute extends PageRouteInfo<void> {
   static const PageInfo<void> page = PageInfo<void>(name);
 }
 
+
 /// generated route for
 /// [QuizScreen]
 class QuizRoute extends PageRouteInfo<QuizRouteArgs> {
@@ -282,6 +284,13 @@ class QuizRoute extends PageRouteInfo<QuizRouteArgs> {
   static const String name = 'QuizRoute';
 
   static const PageInfo<QuizRouteArgs> page = PageInfo<QuizRouteArgs>(name);
+}
+
+
+class CompletedRouteArgs {
+  const CompletedRouteArgs({required this.resultResponse});
+
+  final ResultResponse resultResponse;
 }
 
 class QuizRouteArgs {
