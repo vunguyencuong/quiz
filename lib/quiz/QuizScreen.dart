@@ -241,24 +241,28 @@ class QuizScreen extends StatelessWidget {
                                   child: Column(
                                     children: [
                                       Center(
-                                        child: Obx(() => Text(
-                                              "Question ${_quizController.number.value + 1}/ ${_quizController.questions.length}",
-                                              style: const TextStyle(
-                                                  color: Color(0xff90CAF9)),
-                                            )),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(top: 32.0), // Điều chỉnh giá trị top tùy ý
+                                          child: Obx(() => Text(
+                                            "Question ${_quizController.number.value + 1}/ ${_quizController.questions.length}",
+                                            style: const TextStyle(
+                                              color: Color(0xff90CAF9),
+                                            ),
+                                          )),
+                                        ),
                                       ),
                                       const SizedBox(
                                         height: 25,
                                       ),
                                       Obx(() => Text(
-                                            _quizController
-                                                .questions[_quizController
-                                                    .number.value]
-                                                .questionText,
-                                            style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 18),
-                                          )),
+                                        _quizController
+                                            .questions[_quizController
+                                            .number.value]
+                                            .questionText,
+                                        style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 18),
+                                      )),
                                     ],
                                   ),
                                 ),
@@ -272,15 +276,15 @@ class QuizScreen extends StatelessWidget {
                                 backgroundColor: Colors.white,
                                 child: Center(
                                   child: Obx(() => Text(
-                                        DateFormat('mm:ss').format(
-                                            DateTime.fromMillisecondsSinceEpoch(
-                                                _quizController._secondRemaining
-                                                        .value *
-                                                    1000)),
-                                        style: const TextStyle(
-                                            color: Color(0xff90CAF9),
-                                            fontSize: 25),
-                                      )),
+                                    DateFormat('mm:ss').format(
+                                        DateTime.fromMillisecondsSinceEpoch(
+                                            _quizController._secondRemaining
+                                                .value *
+                                                1000)),
+                                    style: const TextStyle(
+                                        color: Color(0xff90CAF9),
+                                        fontSize: 25),
+                                  )),
                                 ),
                               ),
                             )
@@ -292,11 +296,11 @@ class QuizScreen extends StatelessWidget {
                         children: [
                           Obx(() => (_quizController.shuffledOptions.isNotEmpty)
                               ? Column(
-                                  children: _quizController.shuffledOptions
-                                      .map((option) {
-                                    return QuestionOption(options: option);
-                                  }).toList(),
-                                )
+                            children: _quizController.shuffledOptions
+                                .map((option) {
+                              return QuestionOption(options: option);
+                            }).toList(),
+                          )
                               : Container()),
                         ],
                       ),
