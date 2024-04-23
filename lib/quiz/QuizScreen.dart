@@ -15,6 +15,9 @@ import '../data/Answer.dart';
 import '../data/response/ApiResponse.dart';
 
 
+import '../data/Answer.dart';
+import '../data/response/ApiResponse.dart';
+import 'CompleteScreen.dart';
 
 class QuizController extends GetxController {
   late BuildContext _context;
