@@ -229,9 +229,11 @@ class QuizScreen extends StatelessWidget {
                             ),
                             Positioned(
                               bottom: 60,
-                              left: 22,
-                              child: Container(
-                                height: 170,
+                              left:0,
+                              right:0,
+                              child: Center(
+                              child:Container(
+                              height: 170,
                                 width: 335,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -289,30 +291,34 @@ class QuizScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                            )
                             ),
                             Positioned(
                               bottom: 210,
-                              left: 140,
-                              child: CircleAvatar(
-                                radius: 42,
-                                backgroundColor: Colors.white,
-                                child: Center(
-                                  child: Obx(
-                                        () =>
-                                        Text(
-                                          DateFormat('mm:ss').format(
-                                            DateTime.fromMillisecondsSinceEpoch(
-                                              _quizController._secondRemaining
-                                                  .value * 1000,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: CircleAvatar(
+                                  radius: 42,
+                                  backgroundColor: Colors.white,
+                                  child: Center(
+                                    child: Obx(
+                                          () =>
+                                          Text(
+                                            DateFormat('mm:ss').format(
+                                              DateTime.fromMillisecondsSinceEpoch(
+                                                _quizController._secondRemaining
+                                                    .value * 1000,
+                                              ),
                                             ),
+                                            style: const TextStyle(
+                                                color: Color(0xff90CAF9),
+                                                fontSize: 25),
                                           ),
-                                          style: const TextStyle(
-                                              color: Color(0xff90CAF9),
-                                              fontSize: 25),
-                                        ),
+                                    ),
                                   ),
                                 ),
-                              ),
+                              )
                             )
                           ],
                         ),
@@ -348,6 +354,7 @@ class QuizScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             elevation: 5,
+                            fixedSize: Size(320,50),
                           ),
                           onPressed: () {
                             _quizController.nextQuestion();

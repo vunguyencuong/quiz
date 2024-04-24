@@ -33,43 +33,55 @@ class CompletedScreen extends StatelessWidget {
             width: 400,
             child: Stack(
               children: [
-                Container(
-                  height: 340,
-                  width: 410,
-                  decoration: BoxDecoration(
+                Center(
+                  child: Container(
+                    height: 340,
+                    width: 410,
+                    decoration: BoxDecoration(
                       color: Color(0xff90CAF9),
-                      borderRadius: BorderRadius.circular(20)
-                  ),
-                  child: Center(
-                    child: CircleAvatar(
-                      radius: 85,
-                      backgroundColor: Colors.white.withOpacity(.3),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
                       child: CircleAvatar(
-                        radius: 71,
-                        backgroundColor: Colors.white.withOpacity(.4),
-                        child:  Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text('Your Score', style: TextStyle(
-                                  fontSize: 20, color: Color(0xff90CAF9)
-                              ),),
-                              RichText(
-                                  text: TextSpan(
-                                      text: score.toString() , style: TextStyle(
-                                      fontSize: 20, fontWeight: FontWeight.bold,color: Color(0xff90CAF9)
+                        radius: 85,
+                        backgroundColor: Colors.white.withOpacity(.3),
+                        child: CircleAvatar(
+                          radius: 71,
+                          backgroundColor: Colors.white.withOpacity(.4),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Your Score',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Color(0xff90CAF9),
                                   ),
-                                      children: [
-                                        TextSpan(
-                                          text: 'pt', style: TextStyle(
-                                            fontSize: 15, fontWeight: FontWeight.bold,color: Color(0xff90CAF9)
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: score.toString(),
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xff90CAF9),
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: 'pt',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xff90CAF9),
                                         ),
-                                        )
-                                      ]
-                                  )
-                              )
-                            ],
+                                      )
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -77,168 +89,177 @@ class CompletedScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  bottom: 60,
-                  left: 22,
-                  child: Container(
-                    height: 190,
-                    width: 350,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
+                  bottom: 0, // Điều chỉnh top để đặt bên dưới CircleAvatar
+                  left: 0,
+                  right: 0,
+                  child: FractionalTranslation(
+                    translation: Offset(0.0, -0.05), // Dịch chuyển lên trên 5% của kích thước
+                    child: Center(
+                      child: Container(
+                        height: 190,
+                        width: 350,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
                               blurRadius: 5,
                               spreadRadius: 3,
                               color: Color(0xff90CAF9).withOpacity(.7),
-                              offset: Offset(0,1)
-                          )
-                        ]
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              offset: Offset(0, 1),
+                            )
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Center(
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            height: 15,
-                                            width: 15,
-                                            decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Color(0xff90CAF9)
-                                            ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Center(
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                height: 15,
+                                                width: 15,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Color(0xff90CAF9),
+                                                ),
+                                              ),
+                                              Text(
+                                                completion.toString(),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 20,
+                                                  color: Color(0xff90CAF9),
+                                                ),
+                                              )
+                                            ],
                                           ),
-                                          Text(completion.toString(), style: TextStyle(
-                                              fontWeight: FontWeight.w500,fontSize: 20,
-                                              color: Color(0xff90CAF9)
-                                          ),)
-                                        ],
-                                      ),
+                                        ),
+                                        const Text('Completion')
+                                      ],
                                     ),
-                                    const Text('Completion')
-
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Center(
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                height: 15,
+                                                width: 15,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Color(0xff90CAF9),
+                                                ),
+                                              ),
+                                              Text(
+                                                numberOfQuestions.toString(),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 20,
+                                                  color: Color(0xff90CAF9),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        const Text('Total Question')
+                                      ],
+                                    )
                                   ],
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Center(
-                                      child: Row(
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Center(
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                height: 15,
+                                                width: 15,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.green,
+                                                ),
+                                              ),
+                                              Text(
+                                                numberOfCorrectAnswers.toString(),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 20,
+                                                  color: Colors.green,
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        const Text('Correct')
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(right: 48.8),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Container(
-                                            height: 15,
-                                            width: 15,
-                                            decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Color(0xff90CAF9)
+                                          Center(
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  height: 15,
+                                                  width: 15,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  numberOfIncorrectAnswers.toString(),
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 20,
+                                                    color: Colors.red,
+                                                  ),
+                                                )
+                                              ],
                                             ),
                                           ),
-                                          Text(numberOfQuestions.toString(), style: TextStyle(
-                                              fontWeight: FontWeight.w500,fontSize: 20,
-                                              color: Color(0xff90CAF9)
-                                          ),)
+                                          const Text('Wrong')
                                         ],
                                       ),
                                     ),
-                                    const Text('Total Question')
                                   ],
                                 )
                               ],
                             ),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Center(
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            height: 15,
-                                            width: 15,
-                                            decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Colors.green
-                                            ),
-                                          ),
-                                          Text(numberOfCorrectAnswers.toString(), style: TextStyle(
-                                              fontWeight: FontWeight.w500,fontSize: 20,
-                                              color: Colors.green
-                                          ),)
-                                        ],
-                                      ),
-                                    ),
-                                    const Text('Correct')
-                                  ],
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(right: 48.8),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Center(
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              height: 15,
-                                              width: 15,
-                                              decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.red
-                                              ),
-                                            ),
-                                            Text(numberOfIncorrectAnswers.toString(), style: TextStyle(
-                                                fontWeight: FontWeight.w500,fontSize: 20,
-                                                color: Colors.red
-                                            ),)
-                                          ],
-                                        ),
-                                      ),
-                                      const Text('Wrong')
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            )
-                          ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 10),
-          // Expanded(
-          //   child: ListView.builder(
-          //     itemCount: questions.length,
-          //     itemBuilder: (context, index) {
-          //       final participant = questions[index];
-          //       return ListTile(
-          //         leading: Text('${index + 1}.'),
-          //         title: Text(participant.),
-          //         trailing: Text('${participant.score} pts'),
-          //       );
-          //     },
-          //   ),
-          // ),
+
         ],
       ),
     );
+
   }
 }
 
