@@ -133,7 +133,6 @@ class QuizController extends GetxController {
 }
 
   void nextQuestion() {
-    _timer.cancel();
     if (number.value == questions.length - 1) {
       completed();
       number.value = 0;
@@ -150,6 +149,7 @@ class QuizController extends GetxController {
         answers: selectedAnswers
             .map((element) => element.toAnswer(questions[number.value].id))
             .toList());
+    _timer.cancel();
   }
 
   void updateShuffleOption() {
@@ -191,18 +191,28 @@ class QuizScreen extends StatelessWidget {
     _quizController.setContext(context);
     _quizController.setQuizId(int.parse(id));
     return FutureBuilder(
-        future: _quizController.api(id),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            return Scaffold(
-              body: Padding(
+      future: _quizController.api(id),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return Scaffold(
+            body: Container(
+              width: double.infinity, // Match parent width
+              height: double.infinity, // Match parent height
+              decoration: BoxDecoration(
+                color: Colors.white, // Background color
+              ),
+              child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: SingleChildScrollView(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    // Center content vertically
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    // Center content horizontally
                     children: [
                       SizedBox(
                         height: 421,
@@ -222,17 +232,18 @@ class QuizScreen extends StatelessWidget {
                               left: 22,
                               child: Container(
                                 height: 170,
-                                width: 340,
+                                width: 335,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                        offset: const Offset(0, 1),
-                                        blurRadius: 5,
-                                        spreadRadius: 3,
-                                        color: const Color(0xff90CAF9)
-                                            .withOpacity(.4)),
+                                      offset: const Offset(0, 1),
+                                      blurRadius: 5,
+                                      spreadRadius: 3,
+                                      color: const Color(0xff90CAF9)
+                                          .withOpacity(.4),
+                                    ),
                                   ],
                                 ),
                                 child: Padding(
@@ -242,27 +253,38 @@ class QuizScreen extends StatelessWidget {
                                     children: [
                                       Center(
                                         child: Padding(
-                                          padding: const EdgeInsets.only(top: 32.0), // Điều chỉnh giá trị top tùy ý
-                                          child: Obx(() => Text(
-                                            "Question ${_quizController.number.value + 1}/ ${_quizController.questions.length}",
-                                            style: const TextStyle(
-                                              color: Color(0xff90CAF9),
-                                            ),
-                                          )),
+                                          padding: const EdgeInsets.only(
+                                              top: 32.0),
+                                          // Điều chỉnh giá trị top tùy ý
+                                          child: Obx(
+                                                () =>
+                                                Text(
+                                                  "Question ${_quizController
+                                                      .number.value +
+                                                      1}/ ${_quizController
+                                                      .questions.length}",
+                                                  style: const TextStyle(
+                                                    color: Color(0xff90CAF9),
+                                                  ),
+                                                ),
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(
                                         height: 25,
                                       ),
-                                      Obx(() => Text(
-                                        _quizController
-                                            .questions[_quizController
-                                            .number.value]
-                                            .questionText,
-                                        style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 18),
-                                      )),
+                                      Obx(
+                                            () =>
+                                            Text(
+                                              _quizController
+                                                  .questions[_quizController
+                                                  .number.value]
+                                                  .questionText,
+                                              style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 18),
+                                            ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -275,16 +297,20 @@ class QuizScreen extends StatelessWidget {
                                 radius: 42,
                                 backgroundColor: Colors.white,
                                 child: Center(
-                                  child: Obx(() => Text(
-                                    DateFormat('mm:ss').format(
-                                        DateTime.fromMillisecondsSinceEpoch(
-                                            _quizController._secondRemaining
-                                                .value *
-                                                1000)),
-                                    style: const TextStyle(
-                                        color: Color(0xff90CAF9),
-                                        fontSize: 25),
-                                  )),
+                                  child: Obx(
+                                        () =>
+                                        Text(
+                                          DateFormat('mm:ss').format(
+                                            DateTime.fromMillisecondsSinceEpoch(
+                                              _quizController._secondRemaining
+                                                  .value * 1000,
+                                            ),
+                                          ),
+                                          style: const TextStyle(
+                                              color: Color(0xff90CAF9),
+                                              fontSize: 25),
+                                        ),
+                                  ),
                                 ),
                               ),
                             )
@@ -294,30 +320,35 @@ class QuizScreen extends StatelessWidget {
                       const SizedBox(height: 10),
                       Column(
                         children: [
-                          Obx(() => (_quizController.shuffledOptions.isNotEmpty)
-                              ? Column(
-                            children: _quizController.shuffledOptions
-                                .map((option) {
-                              return QuestionOption(options: option);
-                            }).toList(),
-                          )
-                              : Container()),
+                          Obx(
+                                () =>
+                            (_quizController.shuffledOptions.isNotEmpty)
+                                ? Column(
+                              children: _quizController.shuffledOptions
+                                  .map((option) {
+                                return QuestionOption(options: option);
+                              })
+                                  .toList(),
+                            )
+                                : Container(),
+                          ),
                         ],
                       ),
                       const SizedBox(
                         height: 30,
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xff90CAF9),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              elevation: 5),
+                            backgroundColor: const Color(0xff90CAF9),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 5,
+                          ),
                           onPressed: () {
                             _quizController.nextQuestion();
                           },
@@ -326,9 +357,10 @@ class QuizScreen extends StatelessWidget {
                             child: const Text(
                               'Next',
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -337,15 +369,17 @@ class QuizScreen extends StatelessWidget {
                   ),
                 ),
               ),
-            );
-          }
-        });
+            ),
+          );
+        }
+      },
+    );
   }
-
 }
 
 
-Stream<String> getSubmitStatus(
+
+  Stream<String> getSubmitStatus(
     String sessionId, String username, String token) async* {
   while (true) {
     final response = await dio.get(
@@ -362,36 +396,36 @@ Stream<String> getSubmitStatus(
   }
 }
 
-void showSubmitLoadingDialog(
-    BuildContext context, String sessionId, String username, String token) {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 20),
-              StreamBuilder<String>(
-                stream: getSubmitStatus(sessionId, username, token),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Text('Loading...');
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    return Text('Status: ${snapshot.data}');
-                  }
-                },
-              ),
-            ],
+  void showSubmitLoadingDialog(
+      BuildContext context, String sessionId, String username, String token) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 20),
+                StreamBuilder<String>(
+                  stream: getSubmitStatus(sessionId, username, token),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text('Loading...');
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return Text('Status: ${snapshot.data}');
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }

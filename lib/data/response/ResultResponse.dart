@@ -28,7 +28,7 @@ class ResultStatus {
 
 class ResultData {
   final int id;
-  final int score;
+  final double score;
   final List<ResultQuestion> questions;
 
   ResultData({required this.id, required this.score, required this.questions});

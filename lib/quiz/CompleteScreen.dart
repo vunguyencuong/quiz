@@ -16,25 +16,13 @@ class Participant {
 class CompletedScreen extends StatelessWidget {
   final ResultResponse result;
   CompletedScreen({super.key, required this.result});
-  List<Participant> participants = [
-    Participant('Alice', 95),
-    Participant('Bob', 85),
-    Participant('Charlie', 80),
-    Participant('David', 75),
-    Participant('Emma', 70),
-    Participant('Frank', 65),
-    Participant('Grace', 60),
-    Participant('Hannah', 55),
-    Participant('Ian', 50),
-    Participant('Julia', 45),
-  ];
 
   @override
   Widget build(BuildContext context) {
     int numberOfCorrectAnswers = result.data.questions.where((question) => question.choices.any((choice) => choice.correct)).length;
     int numberOfQuestions = result.data.questions.length;
     int numberOfIncorrectAnswers = numberOfQuestions - numberOfCorrectAnswers;
-    int score = result.data.score;
+    double score = result.data.score;
     List<ResultQuestion> questions = result.data.questions;
     double completion = score / numberOfQuestions * 100;
     return Scaffold(
