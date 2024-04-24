@@ -341,7 +341,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                     description: descriptionController.text,
                     startTime: mPickedDate.toUtc().toIso8601String(),
                     duration: int.parse(durationController.text)*60000,
-                    users: [usersController.text],
+                    users: usersController.text.split(","),
                     questions: questions,
                   );
                   if (quizId.isNotEmpty) {
