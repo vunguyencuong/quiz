@@ -27,7 +27,7 @@ class CompletedScreen extends StatelessWidget {
     int numberOfIncorrectAnswers = numberOfQuestions - numberOfCorrectAnswers;
     double score = result.data.score;
     List<ResultQuestion> questions = result.data.questions;
-    double completion = score / numberOfQuestions * 100;
+    double completion = numberOfCorrectAnswers / numberOfQuestions * 100;
 
     return Scaffold(
       body: Center(
@@ -131,7 +131,7 @@ class CompletedScreen extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        completion.toString(),
+                                        "${completion.toString()}%",
                                         style: TextStyle(
                                           fontWeight: FontWeight.w500,
                                           fontSize: 20,

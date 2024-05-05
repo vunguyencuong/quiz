@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:convert';
@@ -34,64 +35,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
   DateTime mPickedDate = DateTime.now();
   List pickedFiles = [];
 
-  List<Map<String, dynamic>> questions = [
-    {
-      'questionText': 'What is the capital of France?',
-      'choices': [
-        {
-          'choiceText': 'Paris',
-          'correct': true,
-          'order': 0, // Add the 'order' field
-        },
-        {
-          'choiceText': 'London',
-          'correct': false,
-          'order': 0, // Add the 'order' field
-        },
-        {
-          'choiceText': 'Berlin',
-          'correct': false,
-          'order': 0, // Add the 'order' field
-        },
-        {
-          'choiceText': 'Madrid',
-          'correct': false,
-          'order': 0, // Add the 'order' field
-        },
-      ],
-      'order': 0,
-      'quizId': 0,
-      'multipleChoice': true, // Set 'multipleChoice' to true
-    },
-    {
-      'questionText': 'What is the capital of England?',
-      'choices': [
-        {
-          'choiceText': 'Paris',
-          'correct': false,
-          'order': 0, // Add the 'order' field
-        },
-        {
-          'choiceText': 'London',
-          'correct': true,
-          'order': 0, // Add the 'order' field
-        },
-        {
-          'choiceText': 'Berlin',
-          'correct': false,
-          'order': 0, // Add the 'order' field
-        },
-        {
-          'choiceText': 'Madrid',
-          'correct': false,
-          'order': 0, // Add the 'order' field
-        },
-      ],
-      'order': 1,
-      'quizId': 0,
-      'multipleChoice': true, // Set 'multipleChoice' to true
-    },
-  ];
+  late List<Map<String, dynamic>> questions;
 
   @override
   Widget build(BuildContext context) {
@@ -117,12 +61,12 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   onPressed: () async {
                     FilePickerResult? result = await FilePicker.platform
                         .pickFiles(
-                        type: FileType.custom,
-                        allowMultiple: false,
-                        allowedExtensions: ['json']);
+                            type: FileType.custom,
+                            allowMultiple: false,
+                            allowedExtensions: ['json']);
                     if (result != null) {
                       List<File> pickedFiles =
-                      result.files.map((file) => File(file.path!)).toList();
+                          result.files.map((file) => File(file.path!)).toList();
                       print("Imported files: $pickedFiles");
                       File file = File(result.files.single.path!);
                       try {
@@ -236,12 +180,12 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   onPressed: () async {
                     FilePickerResult? result = await FilePicker.platform
                         .pickFiles(
-                        type: FileType.custom,
-                        allowMultiple: false,
-                        allowedExtensions: ['json']);
+                            type: FileType.custom,
+                            allowMultiple: false,
+                            allowedExtensions: ['json']);
                     if (result != null) {
                       List<File> pickedFiles =
-                      result.files.map((file) => File(file.path!)).toList();
+                          result.files.map((file) => File(file.path!)).toList();
                       print("Imported files: $pickedFiles");
                       File file = File(result.files.single.path!);
                       try {
@@ -273,12 +217,12 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   onPressed: () async {
                     FilePickerResult? result = await FilePicker.platform
                         .pickFiles(
-                        type: FileType.custom,
-                        allowMultiple: false,
-                        allowedExtensions: ['json']);
+                            type: FileType.custom,
+                            allowMultiple: false,
+                            allowedExtensions: ['json']);
                     if (result != null) {
                       List<File> pickedFiles =
-                      result.files.map((file) => File(file.path!)).toList();
+                          result.files.map((file) => File(file.path!)).toList();
                       print("Imported files: $pickedFiles");
                       File file = File(result.files.single.path!);
                       try {
@@ -299,33 +243,50 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   },
                   child: const Text('Import json users')),
               TextButton(
-                  onPressed: () async {
-                    FilePickerResult? result = await FilePicker.platform
-                        .pickFiles(
+                  onPressed: () {
+                    FilePicker.platform.pickFiles(
                         type: FileType.custom,
                         allowMultiple: false,
-                        allowedExtensions: ['json']);
-                    if (result != null) {
-                      List<File> pickedFiles =
-                      result.files.map((file) => File(file.path!)).toList();
-                      print("Imported files: $pickedFiles");
-                      File file = File(result.files.single.path!);
-                      try {
-                        String contents = await file.readAsString();
-                        questions = (json.decode(contents) as List<dynamic>)
-                            .cast<Map<String, dynamic>>();
-                        print("questions: $questions");
-                        showPreviewDialog(context, questions);
-                      } catch (e) {
-                        print("Error reading file: $e");
+                        allowedExtensions: ['json']).then((result) async {
+                      if (result != null) {
+                        if (kIsWeb) {
+                          final file = result.files.firstOrNull;
+                          if (file != null) {
+                            try {
+                              String contents = utf8.decode(file.bytes ?? []);
+                              questions =
+                                  (json.decode(contents) as List<dynamic>)
+                                      .cast<Map<String, dynamic>>();
+                              print("questions: $questions");
+                              showPreviewDialog(context, questions);
+                            } catch (e) {
+                              print("Error reading file: $e");
+                            }
+                          }
+                        } else {
+                          List<File> pickedFiles = result.files
+                              .map((file) => File(file.path!))
+                              .toList();
+                          print("Imported files: $pickedFiles");
+                          File file = File(result.files.single.path!);
+                          try {
+                            String contents = await file.readAsString();
+                            questions = (json.decode(contents) as List<dynamic>)
+                                .cast<Map<String, dynamic>>();
+                            print("questions: $questions");
+                            showPreviewDialog(context, questions);
+                          } catch (e) {
+                            print("Error reading file: $e");
+                          }
+                        }
+                      } else {
+                        Fluttertoast.showToast(
+                          msg: "Please select a JSON file",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                        );
                       }
-                    } else {
-                      Fluttertoast.showToast(
-                        msg: "Please select a JSON file",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                      );
-                    }
+                    });
                   },
                   child: const Text('Import json questions')),
               SizedBox(height: 10),
@@ -340,7 +301,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                     name: nameController.text,
                     description: descriptionController.text,
                     startTime: mPickedDate.toUtc().toIso8601String(),
-                    duration: int.parse(durationController.text)*60000,
+                    duration: int.parse(durationController.text) * 60000,
                     users: usersController.text.split(","),
                     questions: questions,
                   );
@@ -368,7 +329,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                                 child: Center(
                                   child: QrImageView(
                                     data:
-                                    "http://35.240.159.251:8080/api/v1/join-quiz/$genQrCode",
+                                        "http://35.240.159.251:8080/api/v1/join-quiz/$genQrCode",
                                     size: 200,
                                   ),
                                 ),
