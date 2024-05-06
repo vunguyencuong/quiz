@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../main.dart';
 import '../route/route.dart';
 import 'LoginScreen.dart';
 
@@ -13,6 +14,17 @@ class HomeQuizScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home Quiz'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () async {
+              // Clear the accessToken from SharedPreferences
+              await prefs.remove('role');
+              // Navigate back to the LoginScreen
+              AutoRouter.of(context).pushAndPopUntil(const LoginRoute(), predicate: (route) => false);
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -48,6 +60,7 @@ class HomeQuizScreen extends StatelessWidget {
           ),
         ),
       ),
+
     );
   }
 }

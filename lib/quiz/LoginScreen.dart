@@ -51,8 +51,11 @@ class _LoginFormState extends State<LoginForm> {
       await login(username, password);
       if (prefs.getString('role') == 'TEACHER') {
         widget._authController.isAdmin.value = true;
-      } else {
+      } else if (prefs.getString('role') == 'STUDENT'){
         widget._authController.isAdmin.value = false;
+      }
+      else{
+        return;
       }
       Fluttertoast.showToast(
         msg: "Login success",
@@ -70,8 +73,10 @@ class _LoginFormState extends State<LoginForm> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
+    login("", "");
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
