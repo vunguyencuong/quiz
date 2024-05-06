@@ -60,7 +60,7 @@ class QuizController extends GetxController {
 
   Future<void> api(String id) async {
     final response = await dio.get(
-      'http://35.240.189.148:8000/api/v1/join-quiz/$id/$uuID',
+      '${BASE_URL}/api/v1/join-quiz/$id/$uuID',
       options: Options(
         headers: <String, String>{
           'Authorization': 'Bearer ${prefs.getString('accessToken')}',
@@ -103,7 +103,7 @@ class QuizController extends GetxController {
   showSubmitLoadingDialog(_context, uuID, prefs.getString('username')!, prefs.getString('accessToken')!);
 
   final response = await dio.post(
-    'http://35.240.189.148:8000/api/v1/join-quiz/submit/$quizId/$uuID',
+    '${BASE_URL}/api/v1/join-quiz/submit/$quizId/$uuID',
     options: Options(
       headers: <String, String>{
         'Authorization': 'Bearer ${prefs.getString('accessToken')}',
@@ -390,7 +390,7 @@ class QuizScreen extends StatelessWidget {
     String sessionId, String username, String token) async* {
   while (true) {
     final response = await dio.get(
-      'http://35.240.189.148:8000/api/v1/join-quiz/status/$sessionId',
+      '${BASE_URL}/api/v1/join-quiz/status/$sessionId',
       options: Options(
         headers: <String, String>{
           'Authorization': 'Bearer $token',

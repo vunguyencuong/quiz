@@ -329,7 +329,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                                 child: Center(
                                   child: QrImageView(
                                     data:
-                                        "http://35.240.159.251:8080/api/v1/join-quiz/$genQrCode",
+                                        "${BASE_URL}/api/v1/join-quiz/$genQrCode",
                                     size: 200,
                                   ),
                                 ),
@@ -367,7 +367,7 @@ Future<String> createQuiz({
 }) async {
   showLoadingDialog(context, sessionId, username, token);
   final String apiUrl =
-      'http://35.240.189.148:8000/api/v1/create-quiz/$sessionId';
+      '${BASE_URL}/api/v1/create-quiz/$sessionId';
 
   final response = await dio.post(
     apiUrl,
@@ -424,7 +424,7 @@ Stream<String> getStatus(
   ]);
   while (true) {
     final response = await dio.get(
-      'http://35.240.189.148:8000/api/v1/create-quiz/status/$sessionId',
+      '${BASE_URL}/api/v1/create-quiz/status/$sessionId',
       options: Options(
         headers: <String, String>{
           'Authorization': 'Bearer $token',

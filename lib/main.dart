@@ -8,6 +8,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:smart_printer/route/route.dart';
 late SharedPreferences  prefs;
 late Dio dio;
+String BASE_URL = "https://konk.portlycat.com:8443";
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   prefs = await SharedPreferences.getInstance();

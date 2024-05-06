@@ -129,7 +129,7 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> login(String username, String password) async {
-    final String apiUrl = 'http://35.240.189.148:8000/api/v1/auth/login';
+    final String apiUrl = '${BASE_URL}/api/v1/auth/login';
 
     Dio dio = Dio();
     dio.interceptors.addAll([

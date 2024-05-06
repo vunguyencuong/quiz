@@ -3,10 +3,10 @@ import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../main.dart';
 import '../route/route.dart';
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
-
 
 @RoutePage()
 class RegisterScreen extends StatelessWidget {
@@ -29,10 +29,12 @@ class RegisterForm extends StatefulWidget {
 class _RegisterFormState extends State<RegisterForm> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _chatIdController = TextEditingController();
 
   void _register() {
     String username = _usernameController.text;
     String password = _passwordController.text;
+    String chatId = _chatIdController.text; // Get chatId from controller
 
     // Add your registration logic here
     print('Username: $username');
@@ -41,9 +43,10 @@ class _RegisterFormState extends State<RegisterForm> {
     // For now, just clear the fields after registration attempt
     _usernameController.clear();
     _passwordController.clear();
+    _chatIdController.clear();
     // int code = registerAccount(username, password, username);
     //return response in a varable then push if 200
-    registerAccount(username, password, username).then((value) {
+    registerAccount(username, password, username, chatId).then((value) {
       print(value);
       if (value['status']['code'] == "success") {
         Fluttertoast.showToast(
@@ -53,8 +56,7 @@ class _RegisterFormState extends State<RegisterForm> {
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.green,
             textColor: Colors.white,
-            fontSize: 16.0
-        );
+            fontSize: 16.0);
         AutoRouter.of(context).push(const LoginRoute());
       } else {
         Fluttertoast.showToast(
@@ -64,8 +66,7 @@ class _RegisterFormState extends State<RegisterForm> {
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
             textColor: Colors.white,
-            fontSize: 16.0
-        );
+            fontSize: 16.0);
       }
     });
   }
@@ -97,6 +98,15 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           ),
           Container(
+            margin: const EdgeInsets.only(bottom: 20.0),
+            child: TextField(
+              controller: _chatIdController,
+              decoration: InputDecoration(
+                labelText: 'Chat ID',
+              ),
+            ),
+          ),
+          Container(
             margin: const EdgeInsets.only(top: 20.0),
             child: ElevatedButton(
               onPressed: _register,
@@ -108,7 +118,6 @@ class _RegisterFormState extends State<RegisterForm> {
     );
   }
 
-
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -117,9 +126,9 @@ class _RegisterFormState extends State<RegisterForm> {
     super.dispose();
   }
 
-  Future<Map<String, dynamic>> registerAccount(String username, String password,
-      String fullName) async {
-    final String apiUrl = 'http://35.240.189.148:8000/api/v1/auth/register';
+  Future<Map<String, dynamic>> registerAccount(
+      String username, String password, String fullName, String chatId) async {
+    final String apiUrl = '${BASE_URL}/api/v1/auth/register';
 
     Dio dio = Dio();
     dio.interceptors.addAll([
@@ -146,6 +155,7 @@ class _RegisterFormState extends State<RegisterForm> {
         'username': username,
         'password': password,
         'fullName': fullName,
+        'chatId': chatId,
       },
     );
 
