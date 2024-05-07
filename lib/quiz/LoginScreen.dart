@@ -49,12 +49,12 @@ class _LoginFormState extends State<LoginForm> {
 
     try {
       if(prefs.containsKey('isLoggedIn') && prefs.getBool('isLoggedIn') == true){
-        AutoRouter.of(context).push(const HomeQuizRoute());
         if (prefs.getString('role') == 'TEACHER') {
           widget._authController.isAdmin.value = true;
         } else if (prefs.getString('role') == 'STUDENT'){
           widget._authController.isAdmin.value = false;
         }
+        AutoRouter.of(context).push(const HomeQuizRoute());
         return;
       }
       await login(username, password);
@@ -171,9 +171,6 @@ class _LoginFormState extends State<LoginForm> {
     );
 
     if (response.statusCode == 200) {
-      prefs.remove('username');
-      prefs.remove('role');
-      prefs.remove('accessToken');
       prefs.setString('username', response.data['data']['username']);
       prefs.setString('role', response.data['data']['role']);
       prefs.setString('accessToken', response.data['data']['accessToken']);
