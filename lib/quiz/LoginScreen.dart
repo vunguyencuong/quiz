@@ -48,14 +48,20 @@ class _LoginFormState extends State<LoginForm> {
     String password = _passwordController.text;
 
     try {
+      if(prefs.containsKey('isLoggedIn') && prefs.getBool('isLoggedIn') == true){
+        AutoRouter.of(context).push(const HomeQuizRoute());
+        if (prefs.getString('role') == 'TEACHER') {
+          widget._authController.isAdmin.value = true;
+        } else if (prefs.getString('role') == 'STUDENT'){
+          widget._authController.isAdmin.value = false;
+        }
+        return;
+      }
       await login(username, password);
       if (prefs.getString('role') == 'TEACHER') {
         widget._authController.isAdmin.value = true;
       } else if (prefs.getString('role') == 'STUDENT'){
         widget._authController.isAdmin.value = false;
-      }
-      else{
-        return;
       }
       Fluttertoast.showToast(
         msg: "Login success",
@@ -63,6 +69,7 @@ class _LoginFormState extends State<LoginForm> {
         gravity: ToastGravity.BOTTOM,
       );
       _clearFields();
+      prefs.setBool('isLoggedIn', true);
       AutoRouter.of(context).push(const HomeQuizRoute());
     } catch (e) {
       Fluttertoast.showToast(
@@ -76,7 +83,7 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    login("", "");
+    _login();
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(

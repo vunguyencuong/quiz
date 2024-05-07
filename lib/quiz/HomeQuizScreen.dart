@@ -19,7 +19,7 @@ class HomeQuizScreen extends StatelessWidget {
             icon: Icon(Icons.logout),
             onPressed: () async {
               // Clear the accessToken from SharedPreferences
-              await prefs.remove('role');
+              prefs.setBool('isLoggedIn', false);
               // Navigate back to the LoginScreen
               AutoRouter.of(context).pushAndPopUntil(const LoginRoute(), predicate: (route) => false);
             },
