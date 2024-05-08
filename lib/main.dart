@@ -5,52 +5,42 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_printer/data/app_database/app_database.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:smart_printer/quiz/LoginScreen.dart';
+import 'package:smart_printer/quiz/QuizScreen.dart';
 import 'package:smart_printer/route/route.dart';
 import 'package:uni_links/uni_links.dart';
 import 'dart:io' show Platform;
 
-late SharedPreferences  prefs;
+late SharedPreferences prefs;
 late Dio dio;
 
 String BASE_URL = "https://konk.portlycat.com:8443";
-class MyApp extends StatefulWidget {
-  MyApp({Key? key}) : super(key: key);
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
+class MyApp extends StatelessWidget {
   final _appRouter = AppRouter();
   StreamSubscription? _sub;
   String? _initialLink;
 
-  @override
-  void initState() {
-    super.initState();
-    if (!kIsWeb) {
+  MyApp() {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       initPlatformState();
       _sub = uriLinkStream.listen((Uri? uri) {
-        if (uri != null && uri.pathSegments.length > 1 && uri.pathSegments.first == 'joinQuiz') {
+        if (uri != null &&
+            uri.pathSegments.length > 1 &&
+            uri.pathSegments.first == 'joinQuiz') {
           _appRouter.push(QuizRoute(id: uri.pathSegments[1]));
         }
       });
-    }
+    });
   }
 
-  @override
-  void dispose() {
-    _sub?.cancel();
-    super.dispose();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     String? initialLink;
-    // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       initialLink = await getInitialLink();
     } on PlatformException {
@@ -59,11 +49,14 @@ class _MyAppState extends State<MyApp> {
       initialLink = 'Failed to get initial link: $err.';
     }
 
-    if (!mounted) return;
+    _initialLink = initialLink;
 
-    setState(() {
-      _initialLink = initialLink;
-    });
+    if (_initialLink != null) {
+      Uri uri = Uri.parse(_initialLink!);
+      if (uri.pathSegments.length > 1 && uri.pathSegments.first == 'joinQuiz') {
+        _appRouter.push(QuizRoute(id: uri.pathSegments[1]));
+      }
+    }
   }
 
   @override
@@ -79,8 +72,10 @@ class _MyAppState extends State<MyApp> {
       builder: (context, router) {
         if (_initialLink != null) {
           Uri uri = Uri.parse(_initialLink!);
-          if (uri.pathSegments.length > 1 && uri.pathSegments.first == 'joinQuiz') {
-            _appRouter.push(QuizRoute(id: uri.pathSegments[1]));
+          if (uri.pathSegments.length > 1 &&
+              uri.pathSegments.first == 'joinQuiz') {
+            String? id = uri.pathSegments[1];
+            _appRouter.push(QuizRoute(id: id));
           }
         }
         return router!;
@@ -88,6 +83,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -105,5 +101,7 @@ void main() async {
     CurlLoggerDioInterceptor(),
   ]);
   usePathUrlStrategy();
+  Get.put(AuthController());
+  Get.put(QuizController());
   runApp(MyApp());
 }

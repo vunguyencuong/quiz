@@ -12,7 +12,6 @@ import '../quiz/QuizScreen.dart';
 import '../quiz/RegisterScreen.dart';
 import '../screen/folder/folder_screen.dart';
 
-
 part 'route.gr.dart';
 
 @AutoRouterConfig()
