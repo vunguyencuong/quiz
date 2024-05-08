@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
 
   MyApp() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if(!kIsWeb) return;
+      if(kIsWeb) return;
       initPlatformState();
       _sub = uriLinkStream.listen((Uri? uri) {
         if (uri != null &&
