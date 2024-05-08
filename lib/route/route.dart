@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_printer/screen/home/home_screen.dart';
 import 'package:smart_printer/screen/location_file/location_file_screen.dart';
 
+import '../data/response/ResultResponse.dart';
 import '../quiz/CompleteScreen.dart';
 import '../quiz/CreateQuizScreen.dart';
 import '../quiz/HomeQuizScreen.dart';
@@ -10,7 +11,6 @@ import '../quiz/LoginScreen.dart';
 import '../quiz/QuizScreen.dart';
 import '../quiz/RegisterScreen.dart';
 import '../screen/folder/folder_screen.dart';
-
 
 part 'route.gr.dart';
 
@@ -35,7 +35,7 @@ class AppRouter extends _$AppRouter {
     ),
     MaterialRoute(
       page: CompletedRoute.page,
-      path: '/completed',
+      path: '/completed/:result',
     ),
     MaterialRoute(
       page: CreateQuizRoute.page,
@@ -47,7 +47,7 @@ class AppRouter extends _$AppRouter {
     ),
     MaterialRoute(
       page: QuizRoute.page,
-      path: '/quiz',
+      path: '/joinQuiz/:id',
     ),
     MaterialRoute(
       page: RegisterRoute.page,
